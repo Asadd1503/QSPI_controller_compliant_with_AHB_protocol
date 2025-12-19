@@ -9,21 +9,30 @@ module slave_datapath (
     input logic         h_write,
     input logic         h_sel,
     //--------------- OUTPUTS---------------
-    output logic        h_ready,
+    //output logic        h_ready,
     output logic [1:0]  h_resp,
     output logic [31:0] h_rdata
-    //============== OUTPUT TO CONTROLLER ==============
+    //============== OUTPUT TO SLAVE CONTROLLER ==============
     output logic cfg_reg_wr,
     output logic enter_xip_mode,
-    //============== INPUT FROM CONTROLLER ==============
+
+    //============== INPUT FROM SLAVE CONTROLLER ==============
     input logic cfg_reg_wr_en,
     input logic load_h_addr,
     input logic load_h_burst,
+    //============== OUTPUT TO QSPI DATAPATH ==============
+    output logic clk_div_out,
+    output logic [1:0] flash_addr_len_out,
+    output logic [1:0] no_io_lines_use_out,
+    output logic cpol_out,
+    output logic [31:0] haddr_out,
+    //=============== OUTPUTS TO QSPI CONTROLLER =================
+    output logic cpha_out,
 
 );
 //=================== CFG REGISTERS ===========================
 logic [31:0] ctrl_reg;      // 0x00
-logic [31:0] clk_div;       // 0x04
+logic [31:0] clk_div_reg;       // 0x04
 logic [31:0] status_reg;    // 0x08
 logic [31:0] cmd_reg;       // 0x0C
 logic [31:0] addr_reg;      // 0x10
@@ -31,16 +40,28 @@ logic [31:0] tx_data_reg;   // 0x14
 logic [31:0] rx_data_reg;   // 0x18
 //============================================================
 logic [31:0] addr_in;
+logic [31:0] haddr_dec_out;
 logic       cfg_reg_addr_in_range;
 logic [1:0] flash_addr_len;
 logic       xip_field;
 logic       flash_addr_in_range;
 logic [31:0] h_addr_reg_out;
 logic [31:0] h_burst_reg_out;
+logic [1:0] no_io_lines_used;
+logic cpol;
+logic cpha;
 
 assign xip_field      = ctrl_reg[6];
 assign flash_addr_len = ctrl_reg[5:4];
-assign addr_in = h_addr;
+assign addr_in        = h_addr;
+assign clk_div_out = clk_div_reg[7:0];
+assign flash_addr_len_out = flash_addr_len;
+assign no_io_lines_use_out = no_io_lines_used;
+assign cpol_out = cpol;
+assign cpha_out = cpha;
+assign haddr_out = haddr_dec_out;
+//=============================================================
+
 
 
 //================== ADDRESS DECODER AND XIP MODE DETERMINATION =========================================
@@ -119,6 +140,7 @@ always_ff @(posedge h_clk or negedge h_rstn) begin
         end
 end
 //=============================================================================
+
 //================== REGISTERS FOR STORAGE ====================================
 always_ff @(posedge h_clk or negedge h_rstn) begin
     if (!h_rstn) begin
@@ -134,6 +156,15 @@ always_ff @(posedge h_clk or negedge h_rstn) begin
     end
 end
 //==============================================================================
+//================== ADDRESS DECODING ====================================
+always_comb begin
+    haddr_dec_out = 32'd0;
+    unique case (flash_addr_len)
+        2'b00: haddr_dec_out = {8'd0, h_addr_reg_out[23:0]}; // 3 byte address
+        2'b01: haddr_dec_out = {5'd0, h_addr_reg_out[26:0]}; // 4 byte address
+    endcase
+end
+
 
 
 

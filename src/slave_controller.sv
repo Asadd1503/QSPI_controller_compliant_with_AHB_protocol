@@ -2,6 +2,7 @@ typedef enum logic [3:0] {
     IDLE =          4'd0,
     CFG_REG_WRITE = 4'd1,
     LOAD =          4'd2,
+    BURST_PHASE =   4'd3,
 
 } state_t;
 
@@ -18,6 +19,10 @@ module salve_controller (
     output logic cfg_reg_wr_en,
     output logic load_h_addr,
     output logic load_h_burst,
+    //============== OUTPUTS TO QSPI CONT =============
+    output logic start_new_xip_seq,
+    //==============INPUTS FROM QSPI CONT ================
+    input logic qspi_busy_in,
 
 );
 
@@ -49,6 +54,17 @@ always_comb begin
             else begin
                 n_state = IDLE;
             end
+        LOAD: begin
+            if (qspi_busy_in) begin
+                n_state = BURST_PHASE;
+            end else begin
+                n_state = LOAD;
+            end
+        end
+            
+        BURST_PHASE: begin
+
+        end
             
 
         end 
@@ -61,6 +77,7 @@ always_comb begin
     cfg_reg_wr_en    = 'b0;
     load_h_addr       = 'b0;
     load_h_burst      = 'b0;
+    start_new_xip_seq = 'b0;
     case (c_state)
         IDLE: begin
             h_ready = 'b1;
@@ -69,8 +86,9 @@ always_comb begin
             cfg_reg_wr_en = 'b1;
         end
         LOAD: begin
-            load_h_addr  = 'b1;
-            load_hburst = 'b1;
+            load_h_addr  =      'b1;
+            load_h_burst =      'b1;
+            start_new_xip_seq = 'b1;
         end
 
 
