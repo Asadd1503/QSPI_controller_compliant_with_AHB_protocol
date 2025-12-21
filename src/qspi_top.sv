@@ -14,10 +14,10 @@ module qspi_top (
     output logic [31:0] h_rdata,
     output logic        cs_n,
     output logic        sclk,
-    output logic        io0,
-    output logic        io1,
-    output logic        io2,
-    output logic        io3
+    inout logic         io0,
+    inout logic         io1,
+    inout logic         io2,
+    inout logic         io3
 );
 
 logic cfg_reg_wr;
@@ -44,7 +44,8 @@ logic [1:0] cmd_sel;
 logic gen_sclk;
 logic load_cfg_addr_shift_reg;
 logic cfg_addr_shift_reg_en;
-logic [1:0] io0_sel;
+logic cmd_shift_reg_en;
+logic [2:0] io0_sel;
 logic [1:0] io1_sel;
 logic [1:0] io2_sel;
 logic [1:0] io3_sel;
@@ -53,6 +54,7 @@ logic [1:0] set_count_lim;
 logic count_done;
 logic [31:0] haddr;
 logic addr_shift_reg_en;
+logic data_sample_reg_en;
 
 
 
@@ -117,10 +119,10 @@ qspi_datapath u_qspi_datapath (
     .h_rstn         (h_rstn),
     //============== OUTPUTS TO TOP ==================
     .sclk_out       (sclk),
-    .io0_out        (io0),
-    .io1_out        (io1),
-    .io2_out        (io2),
-    .io3_out        (io3),
+    .io0_inout        (io0),
+    .io1_inout        (io1),
+    .io2_inout        (io2),
+    .io3_inout        (io3),
     //=============== INPUTS FROM SLAVE DATAPATH ==============
     .clk_div_in         (clk_div),
     .flash_addr_len_in (flash_addr_len),
@@ -133,7 +135,7 @@ qspi_datapath u_qspi_datapath (
     .load_cfg_addr_shift_reg_in (load_cfg_addr_shift_reg),
     .cmd_sel_in        (cmd_sel),
     .gen_sclk_in       (gen_sclk),
-    
+    .cmd_shift_reg_en_in (cmd_shift_reg_en),
     .cfg_addr_shift_reg_en_in (cfg_addr_shift_reg_en),
     .io0_sel_in        (io0_sel),
     .io1_sel_in        (io1_sel),
@@ -142,6 +144,8 @@ qspi_datapath u_qspi_datapath (
     .start_count_in    (start_count),
     .set_count_lim_in  (set_count_lim),
     .addr_shift_reg_en_in (addr_shift_reg_en),
+    .count_done_out    (count_done),
+    .data_sample_reg_en_in (data_sample_reg_en),
 
     //============= OUTPUTS TO QSPI CONT==================
     .sclk_out_cont       (sclk_cont),
@@ -169,6 +173,7 @@ qspi_cont u_qspi_cont (
     .use_1_io_lines_in       (use_1_io_lines),
     .use_2_io_lines_in       (use_2_io_lines),
     .use_4_io_lines_in       (use_4_io_lines),
+    .count_done_in          (count_done),
     //============= OUTPUTS TO QSPI DATAPATH =============
     .load_cmd_out             (load_cmd),
     .load_addr_out            (load_addr),
@@ -176,13 +181,15 @@ qspi_cont u_qspi_cont (
     .cmd_sel_out              (cmd_sel),
     .gen_sclk_out             (gen_sclk),
     .cfg_addr_shift_reg_en_out (cfg_addr_shift_reg_en),
+    .cmd_shift_reg_en_out     (cmd_shift_reg_en),
     .io0_sel_out               (io0_sel),
     .io1_sel_out                (io1_sel),
     .io2_sel_out               (io2_sel),
     .io3_sel_out                (io3_sel),
     .start_count_out           (start_count),
     .set_count_lim_out         (set_count_lim),
-    .addr_shift_reg_en_out     (addr_shift_reg_en)
+    .addr_shift_reg_en_out     (addr_shift_reg_en),
+    .data_sample_reg_en_out    (data_sample_reg_en),
 
     
     

@@ -2,9 +2,14 @@ typedef enum logic [5:0] {
     IDLE =          5'd0,
     LOAD =          5'd1,
     SHIFT_SETUP_CMD=5'd2,
-    SHIFT_CMD      =5'd3,
-    COUNT_SETUP_CMD=5'd4,
+    COUNT_SETUP_CMD=5'd3,
+    SHIFT_CMD      =5'd4,
     COUNT_CMD     = 5'd5,
+    ADDR_SHIFT     =5'd6,
+    ADDR_COUNT     =5'd7,
+    DUMMY_CYCLES   =5'd8,
+    DATA_SHIFT     =5'd9,
+    DATA_COUNT     =5'd10,
 
 
     
@@ -38,13 +43,14 @@ module qspi_cont(
     output logic gen_sclk_out, ///
     output logic cmd_shift_reg_en_out,
     output logic cfg_addr_shift_reg_en_out,
-    output logic [1:0] io0_sel_out,
+    output logic [2:0] io0_sel_out,
     output logic [1:0] io1_sel_out,
     output logic [1:0] io2_sel_out,
     output logic [1:0] io3_sel_out,
     output logic start_count_out,
     output logic [1:0] set_count_lim_out,
     output logic addr_shift_reg_en_out,
+    output logic data_sample_reg_en_out,
 
     
 
@@ -102,12 +108,29 @@ always_comb begin
                 n_state = COUNT_CMD;
             end
         end
-
-
-
-
-
+        ADDR_SHIFT: begin
+            n_state = ADDR_COUNT;
         end
+        ADDR_COUNT: begin
+            if (count_done_in) begin
+                n_state = DUMMY_CYCLES;
+            end else begin
+                n_state = ADDR_COUNT;
+            end
+        end
+        DUMMY_CYCLES: begin
+            if (count_done_in) begin
+                n_state = DATA_SHIFT;
+            end else begin
+                n_state = DUMMY_CYCLES;
+            end
+        end
+        DATA_SHIFT: begin
+            n_state = DATA_COUNT;
+        end
+
+
+    end
 
     endcase
 end
@@ -126,6 +149,9 @@ always_comb begin
     io3_sel_out =  'b00;
     start_count_out = 'b0;
     set_count_lim_out = 'b00;
+    addr_shift_reg_en_out = 'b0;
+    cs_n_out = 'b1;
+    data_sample_reg_en_out = 'b0;
 
     case (c_state)
         IDLE: begin
@@ -155,7 +181,7 @@ always_comb begin
             cfg_addr_shift_reg_en_out = 'b1;
             gen_sclk_out = 'b1;
             cs_n_out = 'b0;
-            io0_sel_out = 'b00;
+            io0_sel_out = 'b001;
             start_count_out = 'b1;
             set_count_lim_out = 'b00;
         end
@@ -163,7 +189,7 @@ always_comb begin
             cfg_addr_shift_reg_en_out = 'b1;
             gen_sclk_out = 'b1;
             cs_n_out = 'b0;
-            io0_sel_out = 'b00;
+            io0_sel_out = 'b001;
             start_count_out = 'b1;
             set_count_lim_out = 'b00;
         end
@@ -171,7 +197,7 @@ always_comb begin
             cmd_shift_reg_en_out = 'b1;
             gen_sclk_out = 'b1;
             cs_n_out = 'b0;
-            io0_sel_out = 'b01;
+            io0_sel_out = 'b010;
             start_count_out = 'b1;
             set_count_lim_out = 'b00;
         end
@@ -179,7 +205,7 @@ always_comb begin
             cmd_shift_reg_en_out = 'b1;
             gen_sclk_out = 'b1;
             cs_n_out = 'b0;
-            io0_sel_out = 'b01;
+            io0_sel_out = 'b010;
             start_count_out = 'b1;
             set_count_lim_out = 'b00;
         end
@@ -187,13 +213,45 @@ always_comb begin
             addr_shift_reg_en_out = 'b1;
             gen_sclk_out = 'b1;
             cs_n_out = 'b0;
-            io0_sel_out = 'b10;
+            io0_sel_out = 'b011;
             io1_sel_out = 'b01;
             io2_sel_out = 'b01;
             io3_sel_out = 'b01;
             start_count_out = 'b1;
             set_count_lim_out = 'b01;
         end
+        COUNT_ADDR: begin
+            addr_shift_reg_en_out = 'b1;
+            gen_sclk_out = 'b1;
+            cs_n_out = 'b0;
+            io0_sel_out = 'b011;
+            io1_sel_out = 'b01;
+            io2_sel_out = 'b01;
+            io3_sel_out = 'b01;
+            start_count_out = 'b1;
+            set_count_lim_out = 'b01;
+        end
+        DUMMY_CYCLES: begin
+            cs_n_out = 'b0;
+            gen_sclk_out = 'b1;
+            start_count_out = 'b1;
+            set_count_lim_out = 'b10;
+        end
+        DATA_SHIFT: begin
+            cs_n_out = 'b0;
+            gen_sclk_out = 'b1;
+            data_sample_reg_en_out = 'b1;
+            io0_sel_out = 'b100;
+            io1_sel_out = 'b10;
+            io2_sel_out = 'b10;
+            io3_sel_out = 'b10;
+            start_count_out = 'b1;
+            set_count_lim_out = 'b11;
+        end
+
+            
+
+
 
 
 

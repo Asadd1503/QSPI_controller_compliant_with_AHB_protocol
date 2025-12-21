@@ -45,23 +45,24 @@ module qspi_multi_shift_reg (
         
         if (use_4_io_lines) begin
             // Quad Mode: All 4 lines carry data
-            qspi_io0 = shift_reg[31];
-            qspi_io1 = shift_reg[30];
-            qspi_io2 = shift_reg[29];
-            qspi_io3 = shift_reg[28];
+            qspi_io3 = shift_reg[31];
+            qspi_io2 = shift_reg[30];
+            qspi_io1 = shift_reg[29];
+            qspi_io0 = shift_reg[28];
         end else if (use_2_io_lines) begin
             // Dual Mode: IO0 and IO1 carry data
-            qspi_io0 = shift_reg[31];
-            qspi_io1 = shift_reg[30];
+            qspi_io3 = 1'bz;
             qspi_io2 = 1'bz;
-            qspi_io3 = 1'bz; 
+            qspi_io1 = shift_reg[31];
+            qspi_io0 = shift_reg[30];
         end else if (use_1_io_lines_in) begin
             // Single Mode: Standard MOSI is IO0
-            qspi_io0 = shift_reg[31];
-            qspi_io1 = 1'bz;
-            qspi_io2 = 1'bz;
             qspi_io3 = 1'bz;
+            qspi_io2 = 1'bz;
+            qspi_io1 = 1'bz;
+            qspi_io0 = shift_reg[31];
         end
     end
+    
 
 endmodule
