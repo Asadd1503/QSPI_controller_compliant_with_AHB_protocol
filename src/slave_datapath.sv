@@ -26,6 +26,7 @@ module slave_datapath (
     output logic [1:0] no_io_lines_use_out,
     output logic cpol_out,
     output logic [31:0] haddr_out,
+    output logic [2:0] hburst_reg_out,
     //=============== OUTPUTS TO QSPI CONTROLLER =================
     output logic cpha_out,
 
@@ -46,12 +47,12 @@ logic [1:0] flash_addr_len;
 logic       xip_field;
 logic       flash_addr_in_range;
 logic [31:0] h_addr_reg_out;
-logic [31:0] h_burst_reg_out;
+logic [2:0] h_burst_reg;
 logic [1:0] no_io_lines_used;
 logic cpol;
 logic cpha;
 
-assign xip_field      = ctrl_reg[6];
+assign xip_field      = ctrl_reg[6];  // 1 --> XIP MODE ENABLED, 0 --> INDIRECT MODE
 assign flash_addr_len = ctrl_reg[5:4];
 assign addr_in        = h_addr;
 assign clk_div_out = clk_div_reg[7:0];
@@ -60,6 +61,8 @@ assign no_io_lines_use_out = no_io_lines_used;
 assign cpol_out = cpol;
 assign cpha_out = cpha;
 assign haddr_out = haddr_dec_out;
+assign hburst_reg_out = h_burst_reg;
+
 //=============================================================
 
 
@@ -145,13 +148,13 @@ end
 always_ff @(posedge h_clk or negedge h_rstn) begin
     if (!h_rstn) begin
         h_addr_reg_out  <= 'b0;
-        h_burst_reg_out <= 'b0;
+        h_burst_reg <= 'b0;
     end else begin
         if (load_h_addr) begin
             h_addr_reg_out <= h_addr;
         end 
         if (load_h_burst) begin
-            h_burst_reg_out <= h_burst;
+            h_burst_reg <= h_burst;
         end
     end
 end

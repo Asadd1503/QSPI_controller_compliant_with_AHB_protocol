@@ -10,6 +10,10 @@ typedef enum logic [5:0] {
     DUMMY_CYCLES   =5'd8,
     DATA_SHIFT     =5'd9,
     DATA_COUNT     =5'd10,
+    WRITE_RD_BUFFR=5'd11,
+    WAIT           =5'd12,
+    ONE_CYCLE_DELAY=5'd13,
+
 
 
     
@@ -32,6 +36,7 @@ module qspi_cont(
     input logic use_2_io_lines_in,
     input logic use_4_io_lines_in,
     input logic count_done_in,
+    input logic burst_comp_in,
 
     
     //============= OUTPUTS TO QSPI DATAPATH =============
@@ -51,11 +56,16 @@ module qspi_cont(
     output logic [1:0] set_count_lim_out,
     output logic addr_shift_reg_en_out,
     output logic data_sample_reg_en_out,
+    output logic burst_count_en_out,
 
     
 
     //============= OUTPUTS TO AHB SLAVE CONT===================
     output logic qspi_busy_out,
+    //============= OUTPUTS TO READ BUFFER =====================
+    output logic wr_rd_buffr_en_out,
+    //================= INPUTS FROM READ BUFFER =====================
+    input logic rd_buffr_full_in,
 
 );
 state_t c_state, n_state;
@@ -126,8 +136,37 @@ always_comb begin
             end
         end
         DATA_SHIFT: begin
-            n_state = DATA_COUNT;
+            if (burst_comp_in || ) begin
+                n_state = IDLE;
+            end else begin
+                n_state = DATA_COUNT;
+            end
         end
+        DATA_COUNT: begin
+            if (count_done_in && rd_buffr_full_in) begin
+                n_state = WAIT;
+            end
+            else if (count_done_in) begin
+                n_state = WRITE_RD_BUFFR;
+            end else begin
+                n_state = DATA_COUNT;
+            end
+        end
+        WAIT: begin
+            if (!rd_buffr_full_in) begin
+                n_state = WRITE_RD_BUFFR;
+            end else begin
+                n_state = WAIT;
+            end
+        end
+        WRITE_RD_BUFFR: begin
+            if (cpha_in = 'b1) begin
+                n_state = ONE_CYCLE_DELAY;
+            end else begin
+                n_state = DATA_SHIFT;
+            end
+        end
+
 
 
     end
@@ -152,6 +191,9 @@ always_comb begin
     addr_shift_reg_en_out = 'b0;
     cs_n_out = 'b1;
     data_sample_reg_en_out = 'b0;
+    wr_rd_buffr_en_out = 'b0;
+    burst_count_en_out = 'b0;
+
 
     case (c_state)
         IDLE: begin
@@ -248,6 +290,32 @@ always_comb begin
             start_count_out = 'b1;
             set_count_lim_out = 'b11;
         end
+        DATA_COUNT: begin
+            cs_n_out = 'b0;
+            gen_sclk_out = 'b1;
+            data_sample_reg_en_out = 'b1;
+            io0_sel_out = 'b100;
+            io1_sel_out = 'b10;
+            io2_sel_out = 'b10;
+            io3_sel_out = 'b10;
+            start_count_out = 'b1;
+            set_count_lim_out = 'b11;
+        end
+        WAIT: begin
+            cs_n_out = 'b0;
+            gen_sclk_out = 'b0;
+        end
+        ONE_CYCLE_DELAY: begin
+            cs_n_out = 'b0;
+            gen_sclk_out = 'b1;
+        end
+        WRITE_RD_BUFFR: begin
+            wr_rd_buffr_en_out = 'b1;
+            cs_n_out = 'b0;
+            gen_sclk_out = 'b0;
+            burst_count_en_out = 'b1;
+        end
+        
 
             
 

@@ -15,6 +15,7 @@ module qspi_datapath (
     input logic no_io_lines_use_in,
     input logic cpol_in,
     input logic [31:0] haddr_in,
+    input logic [2:0] hburst_reg_in,
     //============= OUTPUTS TO QSPI CONT==================
     output logic sclk_out_cont,  // to TOP
     output logic addr_of_4B_out,
@@ -40,6 +41,8 @@ module qspi_datapath (
     input logic [1:0] io3_sel_in,
     input logic addr_shift_reg_en_in,
     input logic data_sample_reg_en_in,
+    //================ OUTPUTS TO READ BUFFER =====================
+    output logic [31:0] data_sample_reg_out,
 
 
 
@@ -60,7 +63,7 @@ logic addr_shift_reg_out0;
 logic addr_shift_reg_out1;
 logic addr_shift_reg_out2;
 logic addr_shift_reg_out3;
-logic [31:0] data_sample_reg_out;
+logic [31:0] data_sample_reg_value;
 logic [4:0] addr_count_value;
 logic [4:0] data_count_value;
 
@@ -68,12 +71,14 @@ logic data_sample_reg_in0;
 logic data_sample_reg_in1;
 logic data_sample_reg_in2;
 logic data_sample_reg_in3;
+logic [3:0] total_beats;
 
 
 assign use_1_io_lines_out = use_1_io_lines;
 assign use_2_io_lines_out = use_2_io_lines;
 assign use_4_io_lines_out = use_4_io_lines;
-assign sclk_out_cont = sclk;                 // SCLK for QSPI CONTROLLER
+assign sclk_out_cont = sclk;                        // SCLK for QSPI CONTROLLER
+assign data_sample_reg_out = data_sample_reg_value; // DATA TO READ BUFFER
 
 //=============== CLK  GENERATOR INSTANCE ==================
 qspi_clk_gen u_qspi_clk_gen (
@@ -139,8 +144,9 @@ qspi_data_sample_reg data_sample_reg (
     .use_1_io_lines_in (use_1_io_lines),
     .use_2_io_lines_in (use_2_io_lines),
     .use_4_io_lines_in (use_4_io_lines),
-    .data_out    (data_sample_reg_out) // ------> to be updated
+    .data_out    (data_sample_reg_value) 
 );
+
 
 //============== IO0 SEL MUX ============================
 always_comb begin
@@ -224,7 +230,7 @@ always_comb begin
         use_4_io_lines = 1'b0;
     end
 end
-//======================== DATA BITS COUNT VALUE LOGIC ========================
+//======================== DATA BITS AND BEAT LEN COUNT VALUE LOGIC ========================
 always_comb begin
     if (use_1_io_lines = 'b1) begin
         data_count_value = 5'd32;
@@ -235,6 +241,17 @@ always_comb begin
     end else begin
         data_count_value = 5'd0;
     end
+
+    //---------------------------------------------------
+    if (hburst_reg_in == 3'b000) begin          // SINGLE BEAT
+        total_beats = 'd1;
+    end else if (hburst_reg_in == 3'b011) begin   // INCR4
+        total_beats = 'd4;
+    end else if (hburst_reg_in == 3'b101) begin   // INCR8
+        total_beats = 'd8;
+    end else if (hburst_reg_in == 3'b111) begin   // INCR16
+        total_beats = 'd16;
+    end 
 end
 
 
@@ -258,7 +275,14 @@ qspi_counter shifted_bits_counter (
     .target_count   (target_value_counter_in),
     .count_done     (count_done_out)
 );
-
+//======================= BURST COUNTER ==========================
+qspi_counter burst_counter (
+    .clk            (sclk),
+    .rst_n          (h_rstn),
+    .start_count    (burst_count_en_in),
+    .target_count   (total_beats),
+    .count_done     (burst_comp_out),
+);
 
 //======================== SCLK OUTPUT LOGIC ==========================
 always_comb begin
