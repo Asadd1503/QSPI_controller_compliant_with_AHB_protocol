@@ -8,7 +8,7 @@ typedef enum logic [5:0] {
     ADDR_SHIFT     =5'd6,
     ADDR_COUNT     =5'd7,
     DUMMY_CYCLES   =5'd8,
-    DATA_SHIFT     =5'd9,
+    DATA_SAMPLE     =5'd9,
     DATA_COUNT     =5'd10,
     WRITE_RD_BUFFR=5'd11,
     WAIT           =5'd12,
@@ -27,6 +27,7 @@ module qspi_cont(
     output logic cs_n_out,
     //=============INPUTS FROM AHB SLAVE CONT===================
     input logic start_new_xip_seq,
+    input logic break_seq_in,
     //==============INPUTS FROM SLAVE DATAPATH ==============
     input logic cpha_in,
     //============== INPUTS FROM QSPI DATAPATH =============
@@ -57,6 +58,7 @@ module qspi_cont(
     output logic addr_shift_reg_en_out,
     output logic data_sample_reg_en_out,
     output logic burst_count_en_out,
+    output logic sel_sample_1_line_out,
 
     
 
@@ -130,13 +132,13 @@ always_comb begin
         end
         DUMMY_CYCLES: begin
             if (count_done_in) begin
-                n_state = DATA_SHIFT;
+                n_state = DATA_SAMPLE;
             end else begin
                 n_state = DUMMY_CYCLES;
             end
         end
-        DATA_SHIFT: begin
-            if (burst_comp_in || ) begin
+        DATA_SAMPLE: begin
+            if (burst_comp_in || break_seq_i ) begin
                 n_state = IDLE;
             end else begin
                 n_state = DATA_COUNT;
@@ -163,7 +165,7 @@ always_comb begin
             if (cpha_in = 'b1) begin
                 n_state = ONE_CYCLE_DELAY;
             end else begin
-                n_state = DATA_SHIFT;
+                n_state = DATA_SAMPLE;
             end
         end
 
@@ -193,6 +195,7 @@ always_comb begin
     data_sample_reg_en_out = 'b0;
     wr_rd_buffr_en_out = 'b0;
     burst_count_en_out = 'b0;
+    sel_sample_1_line_out = 'b0;
 
 
     case (c_state)
@@ -279,7 +282,7 @@ always_comb begin
             start_count_out = 'b1;
             set_count_lim_out = 'b10;
         end
-        DATA_SHIFT: begin
+        DATA_SAMPLE: begin
             cs_n_out = 'b0;
             gen_sclk_out = 'b1;
             data_sample_reg_en_out = 'b1;

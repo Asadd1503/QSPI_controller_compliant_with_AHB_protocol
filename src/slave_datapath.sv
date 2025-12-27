@@ -5,7 +5,7 @@ module slave_datapath (
     input logic [31:0]  h_wdata,
     input logic [31:0]  h_addr,
     input logic [2:0]   h_burst,
-    input logic [1:0]   h_trans,
+    input logic [1:0]   h_trans_in,
     input logic         h_write,
     input logic         h_sel,
     //--------------- OUTPUTS---------------
@@ -13,15 +13,20 @@ module slave_datapath (
     output logic [1:0]  h_resp,
     output logic [31:0] h_rdata
     //============== OUTPUT TO SLAVE CONTROLLER ==============
-    output logic cfg_reg_wr,
+    //output logic cfg_reg_wr,
     output logic enter_xip_mode,
+    output logic non_Seq_out,
+    output logic seq_out,
+    output logic idle_out,
+    output logic busy_out,
 
     //============== INPUT FROM SLAVE CONTROLLER ==============
-    input logic cfg_reg_wr_en,
+    //input logic cfg_reg_wr_en,
     input logic load_h_addr,
     input logic load_h_burst,
+
     //============== OUTPUT TO QSPI DATAPATH ==============
-    output logic clk_div_out,
+    output logic [7:0] clk_div_out,
     output logic [1:0] flash_addr_len_out,
     output logic [1:0] no_io_lines_use_out,
     output logic cpol_out,
@@ -29,6 +34,8 @@ module slave_datapath (
     output logic [2:0] hburst_reg_out,
     //=============== OUTPUTS TO QSPI CONTROLLER =================
     output logic cpha_out,
+    //================ INPUTS FROM READ BUFFER =================
+    input logic [31:0] rd_buffr_data_in,
 
 );
 //=================== CFG REGISTERS ===========================
@@ -51,6 +58,8 @@ logic [2:0] h_burst_reg;
 logic [1:0] no_io_lines_used;
 logic cpol;
 logic cpha;
+logic cfg_reg_wr_en;
+
 
 assign xip_field      = ctrl_reg[6];  // 1 --> XIP MODE ENABLED, 0 --> INDIRECT MODE
 assign flash_addr_len = ctrl_reg[5:4];
@@ -76,9 +85,9 @@ always_comb begin
     end
     //--------------------------------------------------------------------
     if (cfg_reg_addr_in_range = 'b1 && h_write = 'b1 && h_sel = 'b1) begin
-        cfg_reg_wr = '1;
+        cfg_reg_wr_en = 'b1;
     end else begin
-        cfg_reg_wr = '0;
+        cfg_reg_wr_en = 'b0;
     end
     //---------------------------------------------------------------------
     if ( flash_addr_len = 2'b00 ) begin
@@ -106,7 +115,16 @@ always_comb begin
         enter_xip_mode = 'b0;
     end
 end
-//=============================================================================
+//================ TRANSFER SIGNAL LOGIC ========================
+always_comb begin
+    case (h_trans_in) 
+        2'b00: non_Seq_out = 'b1;
+        2'b01: seq_out =     'b1;
+        2'b10: idle_out =    'b1;
+        2'b11: busy_out =    'b1;
+    endcase
+    
+end
 
 
 //================== ADDRESS ERROR GENERATOR  =================
@@ -164,7 +182,7 @@ always_comb begin
     haddr_dec_out = 32'd0;
     unique case (flash_addr_len)
         2'b00: haddr_dec_out = {8'd0, h_addr_reg_out[23:0]}; // 3 byte address
-        2'b01: haddr_dec_out = {5'd0, h_addr_reg_out[26:0]}; // 4 byte address
+        2'b01: haddr_dec_out = {5'd0, h_addr_reg_out[26:0]}; // 4 byte address // 128 MB
     endcase
 end
 

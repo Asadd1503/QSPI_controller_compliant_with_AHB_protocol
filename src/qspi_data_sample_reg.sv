@@ -25,17 +25,17 @@ module qspi_sampling_reg (
         if (!rst_n) begin
             sample_reg <= '0;
         end else if (sample_en) begin
-            if (use_4_io_lines_in) begin
-                // Quad Mode: Shift in 4 bits at once into the LSBs
-                sample_reg <= {sample_reg[27:0], qspi_io3, qspi_io2, qspi_io1, qspi_io0};
-            end else if (use_2_io_lines_in) begin
-                // Dual Mode: Shift in 2 bits
-                sample_reg <= {sample_reg[29:0], qspi_io1, qspi_io0};
-            end else if (use_1_io_lines_in) begin
+            if (use_1_io_lines_in) begin
                 // Single Mode: Standard MISO is usually on IO1
                 
                 sample_reg <= {sample_reg[30:0], qspi_io1}; 
-            end
+            end else if (use_2_io_lines_in) begin
+                // Dual Mode: Shift in 2 bits
+                sample_reg <= {sample_reg[29:0], qspi_io1, qspi_io0};
+            end else if (use_4_io_lines_in) begin
+                // Quad Mode: Shift in 4 bits at once into the LSBs
+                sample_reg <= {sample_reg[27:0], qspi_io3, qspi_io2, qspi_io1, qspi_io0};
+            end   
         end
     end
 

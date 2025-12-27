@@ -41,6 +41,8 @@ module qspi_datapath (
     input logic [1:0] io3_sel_in,
     input logic addr_shift_reg_en_in,
     input logic data_sample_reg_en_in,
+    input logic sel_sample_1_line_in,
+    input logic burst_count_en_in,
     //================ OUTPUTS TO READ BUFFER =====================
     output logic [31:0] data_sample_reg_out,
 
@@ -66,6 +68,7 @@ logic addr_shift_reg_out3;
 logic [31:0] data_sample_reg_value;
 logic [4:0] addr_count_value;
 logic [4:0] data_count_value;
+logic use_1_io_lines_sample_reg;
 
 logic data_sample_reg_in0;
 logic data_sample_reg_in1;
@@ -141,11 +144,19 @@ qspi_data_sample_reg data_sample_reg (
     .qspi_io1    (data_sample_reg_in1),
     .qspi_io2    (data_sample_reg_in2),
     .qspi_io3    (data_sample_reg_in3),
-    .use_1_io_lines_in (use_1_io_lines),
+    .use_1_io_lines_in (use_1_io_lines_sample_reg),
     .use_2_io_lines_in (use_2_io_lines),
     .use_4_io_lines_in (use_4_io_lines),
     .data_out    (data_sample_reg_value) 
 );
+//================= SAMPLE REG IO1 SELECT LOGIC ====================
+always_comb begin
+    if (sel_sample_1_line_in = 'b1) begin
+        use_1_io_lines_sample_reg = 'b1;
+    end else begin
+        use_1_io_lines_sample_reg = use_1_io_lines;
+    end
+end
 
 
 //============== IO0 SEL MUX ============================

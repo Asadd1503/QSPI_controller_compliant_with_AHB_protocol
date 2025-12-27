@@ -1,5 +1,5 @@
 module sync_fifo #(
-    parameter int DATA_WIDTH = 8,
+    parameter int DATA_WIDTH = 32,
     parameter int FIFO_DEPTH = 16,
     parameter int ALMOST_FULL_THRESH = 14,
     parameter int ALMOST_EMPTY_THRESH = 2
@@ -13,11 +13,11 @@ module sync_fifo #(
     output logic                    full,
     output logic                    empty,
     output logic                    almost_full,
-    output logic                    almost_empty,
-    output logic [$clog2(FIFO_DEPTH):0] count
+    output logic                    almost_empty
+    
 );
 
-    
+    logic [$clog2(FIFO_DEPTH):0] count;
     logic [$clog2(FIFO_DEPTH)-1:0] wr_ptr, rd_ptr;
     logic [DATA_WIDTH-1:0] mem[FIFO_DEPTH-1:0];
 

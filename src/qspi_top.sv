@@ -25,7 +25,7 @@ logic enter_xip_mode;
 logic cfg_reg_wr_en,
 logic load_h_addr;
 logic load_h_burst;
-logic clk_div;
+//logic clk_div;
 logic qspi_busy;
 logic start_new_xip_seq;
 logic enter_xip_mode;
@@ -62,6 +62,12 @@ logic rst_buffr_n;
 logic rd_buffr_full;
 logic burst_count_en;
 logic burst_comp;
+logic rst_rd_fifo;
+logic non_seq, seq, idle, busy;
+logic rd_fifo_empty;
+logic rd_fifo_data_en;
+logic break_seq;
+logic [31:0] rd_buffr_data_out;
 
 
 
@@ -80,10 +86,14 @@ slave_datapath u_slave_datapath (
     //============= OUTPUTS TO TOP ==================
     .h_ready            (h_ready),
     .h_resp             (h_resp),
-    .h_rdata            (h_rdata),
+    //.h_rdata_out        (h_rdata),
     //============== OUTPUTS TO SLAVE CONTROLLER ==============
     .cfg_reg_wr         (cfg_reg_wr),
     .enter_xip_mode     (enter_xip_mode),
+    .non_Seq_out        (non_seq),
+    .seq_out            (seq),
+    .idle_out           (idle),
+    .busy_out           (busy),
     //============== INPUTS FROM SLAVE CONTROLLER ==============
     .cfg_reg_wr_en      (cfg_reg_wr_en),
     .load_h_addr        (load_h_addr),
@@ -98,6 +108,8 @@ slave_datapath u_slave_datapath (
     
     //=============== OUTPUTS TO QSPI CONTROLLER =================
     .cpha_out           (cpha),
+    //================ INPUTS FROM READ BUFFER =================
+    .rd_buffr_data_in   (rd_buffr_data_out),
 
 );
 slave_controller u_slave_controller (
@@ -109,14 +121,24 @@ slave_controller u_slave_controller (
     //============== INPUTS FROM SLAVE DATAPATH ==============
     .cfg_reg_wr         (cfg_reg_wr),
     .enter_xip_mode     (enter_xip_mode),
+    .non_seq_in         (non_seq),
+    .seq_in             (seq),
+    .idle_in            (idle),
+    .busy_in            (busy),
     //============== OUTPUTS TO SLAVE DATAPATH ==============
     .cfg_reg_wr_en      (cfg_reg_wr_en),
     .load_h_addr        (load_h_addr),
     .load_h_burst       (load_h_burst),
-    //============== OUTPUTS TO QSPI DATAPAH ==============
+    //============== OUTPUTS TO QSPI CONTROLLER==============
     .start_new_xip_seq  (start_new_xip_seq),
+    .break_seq_out      (break_seq),
     //==============INPUTS FROM QSPI CONT ================
     .qspi_busy_in       (qspi_busy),
+    //===============OUTPUTS TO READ FIFO ==================
+    .rst_rd_fifo_out    (rst_rd_fifo),
+    .rd_fifo_data_en_out (rd_fifo_data_en),
+    //=============== INPUTS FROM READ FIFO ==================
+    .rd_fifo_empty_in       (rd_fifo_empty),
 
 
 );
@@ -152,7 +174,7 @@ qspi_datapath u_qspi_datapath (
     .start_count_in    (start_count),
     .set_count_lim_in  (set_count_lim),
     .addr_shift_reg_en_in (addr_shift_reg_en),
-    .count_done_out    (count_done),
+    
     .data_sample_reg_en_in (data_sample_reg_en),
     .burst_count_en_in (burst_count_en),
 
@@ -162,6 +184,8 @@ qspi_datapath u_qspi_datapath (
     .use_1_io_lines_out (use_1_io_lines),
     .use_2_io_lines_out (use_2_io_lines),
     .use_4_io_lines_out (use_4_io_lines),
+    .burst_comp_out    (burst_comp),
+    .count_done_out    (count_done),
     //============== OUTPUTS TO READ BUFFER =======================
     .data_sample_reg_out (data_sample_reg),
 
@@ -173,6 +197,7 @@ qspi_cont u_qspi_cont (
     .cs_n_out                 (cs_n),
      //=============INPUTS FROM AHB SLAVE CONT===================
     .start_new_xip_seq      (start_new_xip_seq),
+    .break_seq_in           (break_seq),
     //==============INPUTS FROM SLAVE DATAPATH ==============
     .cpha_in                (cpha),
     //============= OUTPUTS TO AHB SLAVE CONT===================
@@ -185,6 +210,7 @@ qspi_cont u_qspi_cont (
     .use_2_io_lines_in       (use_2_io_lines),
     .use_4_io_lines_in       (use_4_io_lines),
     .count_done_in          (count_done),
+    .burst_comp_in          (burst_comp),
     //============= OUTPUTS TO QSPI DATAPATH =============
     .load_cmd_out             (load_cmd),
     .load_addr_out            (load_addr),
@@ -213,18 +239,21 @@ qspi_cont u_qspi_cont (
 
 );
 //====================== READ BUFFER ==========================
-sync_fifo read_buffer (
+sync_fifo read_buffer # (
+    .DATA_WIDTH (32),
+    .FIFO_DEPTH (16)
+)(
     .clk            (h_clk),
     // INPUT FROM SLAVE CONTROLLER
-    .rst_n          (rst_buffr_n),
+    .rst_n          (rst_rd_fifo),
     // Write Side
     .data_in        (data_sample_reg),
     .write_en       (wr_rd_buffer_en),
-    .full           (rd_buffr_full_in), 
+    .full           (rd_buffr_full), 
     // Read Side
-    .data_out       (h_rdata),
-    .read_en        (h_ready & ~h_write & h_sel),
-    .empty          ()  // Not connected
-)
+    .data_out       (rd_buffr_data_out),
+    .read_en        (rd_fifo_data_en),
+    .empty          (rd_fifo_empty)  
+);
 
 endmodule
