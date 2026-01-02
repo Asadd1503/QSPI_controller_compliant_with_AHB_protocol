@@ -16,6 +16,10 @@ module qspi_datapath (
     input logic cpol_in,
     input logic [31:0] haddr_in,
     input logic [2:0] hburst_reg_in,
+    input logic [31:0] addr_reg_in,
+    input logic [7:0] cmd_reg_in,
+    input logic xip_field_in,
+    input logic [7:0] indrct_bytes_num_in,
     //============= OUTPUTS TO QSPI CONT==================
     output logic sclk_out_cont,  // to TOP
     output logic addr_of_4B_out,
@@ -23,7 +27,7 @@ module qspi_datapath (
     output logic use_2_io_lines_out,
     output logic use_4_io_lines_out,
     output logic count_done_out,
-
+    output logic setup_cmd_sent_out,
     //============= INPUTS FROM QSPI CONT ================
     input logic load_cmd_in,
     input logic load_addr_in,
@@ -43,11 +47,14 @@ module qspi_datapath (
     input logic data_sample_reg_en_in,
     input logic sel_sample_1_line_in,
     input logic burst_count_en_in,
+    input logic sel_shift_addr_reg_in,
+    input logic set_setup_flag_in,
+    input logoc load_shift_data_en_in,
+    input logic data_Shift_reg_en_in,
     //================ OUTPUTS TO READ BUFFER =====================
     output logic [31:0] data_sample_reg_out,
-
-
-
+    //================ INPUTS FROM WRITE BUFFER ==================
+    input logic [31:0] wr_buffr_rd_data_in
 
 );
 
@@ -69,6 +76,11 @@ logic [31:0] data_sample_reg_value;
 logic [4:0] addr_count_value;
 logic [4:0] data_count_value;
 logic use_1_io_lines_sample_reg;
+logic [31:0] shift_addr_reg_in;
+logic data_shift_reg_out0;
+logic data_shift_reg_out1;
+logic data_shift_reg_out2;
+logic data_shift_reg_out3;
 
 logic data_sample_reg_in0;
 logic data_sample_reg_in1;
@@ -94,10 +106,11 @@ qspi_clk_gen u_qspi_clk_gen (
 //================ CMD SEL MUX ===========================
 always_comb begin
     case (cmd_sel_in)
-        2'b00: cmd_shift_reg_data_in = 8'hEC;  // QUAD READ FOR 4 BYTE ADDR SPACE
-        2'b01: cmd_shift_reg_data_in = 8'h13;  // SINGLE READ FOR 4 BYTE ADDR SPACE
-        2'b10: cmd_shift_reg_data_in = 8'hEB;  // QUAD READ FOR 3 BYTE ADDR SPACE
-        2'b11: cmd_shift_reg_data_in = 8'h03;  // SINGLE READ FOR 3 BYTE ADDR SPACE
+        3'b000: cmd_shift_reg_data_in = 8'hEC;  // QUAD READ FOR 4 BYTE ADDR SPACE
+        3'b001: cmd_shift_reg_data_in = 8'h13;  // SINGLE READ FOR 4 BYTE ADDR SPACE
+        3'b010: cmd_shift_reg_data_in = 8'hEB;  // QUAD READ FOR 3 BYTE ADDR SPACE
+        3'b011: cmd_shift_reg_data_in = 8'h03;  // SINGLE READ FOR 3 BYTE ADDR SPACE
+        3'b100: cmd_shift_reg_data_in = cmd_reg_in; // CMD FROM CMG REG
     endcase
 
 end
@@ -111,6 +124,14 @@ qspi_cmd_shift_reg u_qspi_cmd_shift_reg (
     .shift_en      (cmd_shift_reg_en_in),
     .mosi          (cmd_shift_reg_out)
 );
+//================ MUX TO SELECT ADDR SHIFT REG VALUE===============
+always_comb begin
+    if (sel_shift_addr_reg_in) begin
+        shift_addr_reg_in = addr_reg_in;
+    end else begin
+        shift_addr_reg_in = haddr_in;
+    end
+end
 //================= CFG ADDR SHIFT REGISTER ========================
 qspi_cmd_shift_reg cfg_addr_shift_reg (
     .clk           (sclk),
@@ -121,10 +142,10 @@ qspi_cmd_shift_reg cfg_addr_shift_reg (
     .mosi          (cfg_addr_shift_reg_out)
 );
 //================ ADDRESS SHIFT REGISTER ==========================
-qspi_addr_shift_reg addr_shift_reg (
+qspi_shift_reg addr_shift_reg (
     .clk         (sclk),
     .rst_n       (h_rstn),
-    .data_in     (haddr_in),
+    .data_in     (shift_addr_reg_in),
     .load        (load_addr_in),
     .shift_en    (addr_shift_reg_en_in),
     .use_1_io_lines_in (use_1_io_lines),
@@ -149,6 +170,21 @@ qspi_data_sample_reg data_sample_reg (
     .use_4_io_lines_in (use_4_io_lines),
     .data_out    (data_sample_reg_value) 
 );
+//====================== DATA SHIFT REG ==========================
+qspi_shift_reg data_shift_reg (
+    .clk         (sclk),
+    .rst_n       (h_rstn),
+    .data_in     (wr_buffr_rd_data_in),
+    .load        (load_shift_data_en_in), // Load when sampling starts
+    .shift_en    (data_shift_reg_en_in), // Shift when sampling
+    .use_1_io_lines_in (use_1_io_lines),
+    .use_2_io_lines_in (use_2_io_lines),
+    .use_4_io_lines_in (use_4_io_lines),
+    .qspi_io0      (data_shift_reg_out0),
+    .qspi_io1      (data_shift_reg_out1),
+    .qspi_io2      (data_shift_reg_out2),
+    .qspi_io3      (data_shift_reg_out3)
+);
 //================= SAMPLE REG IO1 SELECT LOGIC ====================
 always_comb begin
     if (sel_sample_1_line_in = 'b1) begin
@@ -167,6 +203,7 @@ always_comb begin
         3'b010: io0_inout = cmd_shift_reg_out;
         3'b011: io0_inout = addr_shift_reg_out0;
         3'b100: data_sample_reg_in0 = io0_inout;
+        3'b101: io0_inout = data_shift_reg_out0;
         //------------- TBD
     endcase
     
@@ -177,7 +214,8 @@ always_comb begin
         2'b00: io1_inout = 1'bz;
         2'b01: io1_inout = addr_shift_reg_out1;
         2'b10: data_sample_reg_in1 = io1_inout;
-        //------------- TBD
+        2'b11: io1_inout = data_shift_reg_out1;
+        
     endcase
 end
 //============== IO2 SEL MUX ============================
@@ -186,7 +224,7 @@ always_comb begin
         2'b00: io2_inout = 1'bz;
         2'b01: io2_inout = addr_shift_reg_out2;
         2'b10: data_sample_reg_in2 = io2_inout;
-        //------------- TBD
+        2'b11: io2_inout = data_shift_reg_out2;
     endcase
 end
 //============== IO3 SEL MUX ============================
@@ -195,7 +233,7 @@ always_comb begin
         2'b00: io3_inout = 1'bz;
         2'b01: io3_inout = addr_shift_reg_out3;
         2'b10: data_sample_reg_in3 = io3_inout;
-        //------------- TBD
+        2'b11: io3_inout = data_shift_reg_out3;
     endcase
 end
 //============== FLASH ADDR CAL ===========================
@@ -253,7 +291,10 @@ always_comb begin
         data_count_value = 5'd0;
     end
 
-    //---------------------------------------------------
+    //-------------- LOGIC TO DETERMINE TOTAL BEATS -------------------
+    if (!xip_field_in) begin
+        total_beats = indrct_bytes_num_in / 'd4;
+    end else begin
     if (hburst_reg_in == 3'b000) begin          // SINGLE BEAT
         total_beats = 'd1;
     end else if (hburst_reg_in == 3'b011) begin   // INCR4
@@ -263,6 +304,7 @@ always_comb begin
     end else if (hburst_reg_in == 3'b111) begin   // INCR16
         total_beats = 'd16;
     end 
+    end
 end
 
 
@@ -291,6 +333,7 @@ qspi_counter burst_counter (
     .clk            (sclk),
     .rst_n          (h_rstn),
     .start_count    (burst_count_en_in),
+    .xip_field_in   (xip_field_in),
     .target_count   (total_beats),
     .count_done     (burst_comp_out),
 );
@@ -312,7 +355,16 @@ always_comb begin
     end
 end
 //==============================================================
-
+//======================== SETUP FLAG LOGIC =====================
+always_ff @(posedge sclk or negedge h_rstn) begin
+    if (!h_rstn) begin
+        setup_cmd_sent_out <= 'b0;
+    end else begin
+        if (set_setup_flag_in) begin
+            setup_cmd_sent_out <= 'b1;
+        end
+    end
+end
 
 
 

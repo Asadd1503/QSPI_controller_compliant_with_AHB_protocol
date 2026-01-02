@@ -19,12 +19,13 @@ module slave_datapath (
     output logic seq_out,
     output logic idle_out,
     output logic busy_out,
-
+    output logic tx_data_valid_out,
+    output logic enter_indrct_mode_out,
     //============== INPUT FROM SLAVE CONTROLLER ==============
     //input logic cfg_reg_wr_en,
     input logic load_h_addr,
     input logic load_h_burst,
-
+    input logic wr_rx_reg_in,
     //============== OUTPUT TO QSPI DATAPATH ==============
     output logic [7:0] clk_div_out,
     output logic [1:0] flash_addr_len_out,
@@ -32,10 +33,19 @@ module slave_datapath (
     output logic cpol_out,
     output logic [31:0] haddr_out,
     output logic [2:0] hburst_reg_out,
+    output logic [31:0] addr_reg_out,
+    output logic [7:0] cmd_reg_out,
+    output logic [7:0] indrct_bytes_num_out,
+    //============== INPUTS FROM QSPI CONT ================
+    input logic set_done_flag_in,
     //=============== OUTPUTS TO QSPI CONTROLLER =================
     output logic cpha_out,
+    output logic indrct_wr_out,
+    output logic xip_field_out,
     //================ INPUTS FROM READ BUFFER =================
     input logic [31:0] rd_buffr_data_in,
+    //=============== OUTUPTS TO WRITE BUFFER ==================
+    output logic [31:0] wr_buffr_wr_data_out
 
 );
 //=================== CFG REGISTERS ===========================
@@ -59,6 +69,9 @@ logic [1:0] no_io_lines_used;
 logic cpol;
 logic cpha;
 logic cfg_reg_wr_en;
+logic cfg_reg_rd_en;
+logic [1:0] hrDATAsel; // 00 - read buffer, 01 - rx_data_reg, 10 - status_reg
+logic clear_status_reg;
 
 
 assign xip_field      = ctrl_reg[6];  // 1 --> XIP MODE ENABLED, 0 --> INDIRECT MODE
@@ -71,9 +84,21 @@ assign cpol_out = cpol;
 assign cpha_out = cpha;
 assign haddr_out = haddr_dec_out;
 assign hburst_reg_out = h_burst_reg;
-
+assign wr_buffr_wr_data_out = tx_data_reg;
+assign indrct_start = ctrl_reg[7]; // Start bit for indirect transfers
+assign cmd_reg_out = cmd_reg[7:0];
+assign indirct_wr_out = ctrl_reg[16]; // 1 - write, 0 - read
+assign xip_field_out = xip_field;
+assign indrct_bytes_num_out = ctrl_reg[15:8]; // Number of bytes to transfer in indirect mode
 //=============================================================
-
+//=================== INDIRECT MODE LOGIC ==================
+always_comb begin
+    if (indrct_start && !xip_field) begin
+        enter_indrct_mode_out = 'b1;
+    end else begin
+        enter_indrct_mode_out = 'b0;
+    end
+end
 
 
 //================== ADDRESS DECODER AND XIP MODE DETERMINATION =========================================
@@ -89,6 +114,13 @@ always_comb begin
     end else begin
         cfg_reg_wr_en = 'b0;
     end
+    if (cfg_reg_addr_in_range = 'b1 && h_write = 'b0 && h_sel = 'b1) begin
+        cfg_reg_rd_en = 'b1;
+    end else begin
+        cfg_reg_rd_en = 'b0;
+    end 
+    
+
     //---------------------------------------------------------------------
     if ( flash_addr_len = 2'b00 ) begin
         // 3 byte address
@@ -140,6 +172,8 @@ end
 //=============================================================================
 //================== CONFIGURATION REGISTERS LOGIC =========================
 always_ff @(posedge h_clk or negedge h_rstn) begin
+    hrDATAsel <= 2'b00; // Default to read buffer
+    tx_data_valid_out <= 'b0;
     if (!h_rstn) begin
         ctrl_reg    <= 32'b0;
         clk_div     <= 32'b0;
@@ -149,16 +183,33 @@ always_ff @(posedge h_clk or negedge h_rstn) begin
         status_reg  <= 32'b0;
         rx_data_reg <= 32'b0;
     end else begin
+        
         if (cfg_reg_wr_en) begin
             unique case (addr_in)
                 32'h00: ctrl_reg    <= h_wdata;
                 32'h04: clk_div     <= h_wdata;
                 32'h0C: cmd_reg     <= h_wdata;
                 32'h10: addr_reg    <= h_wdata;
-                32'h14: tx_data_reg <= h_wdata;
+                32'h14: begin
+                        tx_data_reg       <= h_wdata;
+                        tx_data_valid_out <= 'b1;
+                end
+
             endcase
         end
+        else if (cfg_reg_rd_en) begin
+            unique case (addr_in)
+                32'h08: hrDATAsel <= 2'b01; // read status reg
+                32'h18: hrDATAsel <= 2'b10; // read rx data reg
+            endcase
         end
+        if (wr_rx_reg_in) begin
+            rx_data_reg <= rd_buffr_data_in;
+        end
+        if (set_done_flag_in) begin
+            status_reg[0] <= 1'b1; // Set done flag
+        end
+    end
 end
 //=============================================================================
 
@@ -185,5 +236,31 @@ always_comb begin
         2'b01: haddr_dec_out = {5'd0, h_addr_reg_out[26:0]}; // 4 byte address // 128 MB
     endcase
 end
+//================= DECODING LOGIC FOR ADDR REG =================
+always_comb begin
+    addr_reg_out = 32'd0;
+    unique case (flash_addr_len)
+        2'b00: addr_reg_out = {8'd0, addr_reg[23:0]}; // 3 byte address
+        2'b01: addr_reg_out = {5'd0, addr_reg[26:0]}; // 4 byte address // 128 MB
+    endcase
+end
+//================= HR_DATA OUTPUT MUX =========================
+always_comb begin
+    clear_status_reg = 'b0;
+    case (hrDATAsel)
+        2'b00; h_rdata = rd_buffr_data_in;
+        2'b01; h_rdata = rx_data_reg;
+        2'b10; begin
+            h_rdata = status_reg;
+            clear_status_reg = 'b1;
+        end
+        default: h_rdata = 32'd0;
+    endcase
+end
+always_ff @(posedge h_clk or negedge h_rstn) begin
+        if (clear_status_reg) begin
+            status_reg <= 32'b0; // Clear done flag after reading status reg
+        end
+    end
 
 endmodule

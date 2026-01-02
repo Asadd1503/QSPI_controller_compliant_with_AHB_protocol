@@ -5,6 +5,10 @@ typedef enum logic [3:0] {
     BURST_PHASE =   4'd2,
     BREAK_SEQ =     4'd3,
     READ_DATA =     4'd4,
+    TRANSFER_DATA = 4'd5,
+    INDIRECT_MODE = 4'd6,
+    READ_RD_BUFFER  = 4'd7,
+    WRITE_RX_REG  = 4'd8
 
 } state_t;
 
@@ -21,20 +25,29 @@ module slave_controller (
     input logic seq_in,
     input logic idle_in,
     input logic busy_in,
+    input logic tx_data_valid_in,
+    input logic enter_indrct_mode_in,
     //============== OUTPUTS TO DATAPATH ==============
     //output logic cfg_reg_wr_en,
     output logic load_h_addr,
     output logic load_h_burst,
+    output logic wr_rx_reg_out,
+    
     //============== OUTPUTS TO QSPI CONT =============
     output logic start_new_xip_seq,
     output logic break_seq_out,
+    output logic start_indrct_mode_out,
     //==============INPUTS FROM QSPI CONT ================
     input logic qspi_busy_in,
     //===============OUTPUTS TO READ FIFO ==================
     output logic rst_rd_fifo_out,
-    output logic rd_fifo_data_en_out,
+    output logic rd_buffr_rd_en_out,
     //=============== INPUTS FROM READ FIFO ==================
     input logic rd_fifo_empty_in,
+    //=============== OUTPUTS TO WRITE BUFFER ==================
+    output logic wr_buffer_wr_en_out,
+    //=============== INPUTS FROM WRITE BUFFER ==================
+    input logic wr_buffr_full_in
 
 );
 
@@ -57,11 +70,24 @@ end
 always_comb begin
     case (c_state)
         IDLE: begin
-            if (!rd_fifo_empty_in && seq_in) begin
-                n_state = READ_DATA;
+            if (enter_indrct_mode_in) begin
+                n_state = INDIRECT_MODE;
             end
             else if (enter_xip_mode) begin
                 n_state = LOAD;
+            end
+            else if (!rd_fifo_empty_in && !xip_field_in) begin
+                n_state = READ_RD_BUFFER;
+            end
+            else if (!rd_fifo_empty_in && seq_in) begin
+                n_state = READ_DATA;
+            end
+            
+            else if (wr_buffr_full_in) begin
+                n_state = IDLE;
+            end
+            else if (tx_data_valid_in) begin
+                n_state = TRANSFER_DATA;
             end
             else begin
                 n_state = IDLE;
@@ -77,7 +103,7 @@ always_comb begin
         BURST_PHASE: begin
             if (idle_in || non_seq_in) begin
                 n_state = BREAK_SEQ;
-            end else if (busy_in ) begin
+            end else if (busy_in) begin
                 n_state = IDLE;
             end else if (!rd_fifo_empty_in) begin
                 n_state = READ_DATA;
@@ -89,11 +115,24 @@ always_comb begin
             n_state = IDLE;
         end
         BREAK_SEQ: begin
-            if (!qspi_busy_in) begin
+            if (qspi_busy_in) begin
                 n_state = IDLE;
             end else begin
                 n_state = BREAK_SEQ;
             end
+        end
+        TRANSFER_DATA: begin
+            n_state = IDLE;
+        end
+        INDIRECT_MODE: begin
+            if (qspi_busy_in) begin
+                n_state = IDLE;
+            end else begin
+                n_state = INDIRECT_MODE;
+            end
+        end
+        READ_RD_BUFFER: begin
+            n_state = WRITE_RX_REG;
         end
             
 
@@ -109,8 +148,11 @@ always_comb begin
     load_h_burst      = 'b0;
     start_new_xip_seq = 'b0;
     rst_rd_fifo_out   = 'b0;
-    rd_fifo_data_en_out = 'b0;
+    rd_buffr_rd_en_out = 'b0;
     break_seq_out       = 'b0;
+    wr_buffer_wr_en_out = 'b0;
+    start_indrct_mode_out = 'b0;
+    wr_rx_reg_out       = 'b0;
     case (c_state)
         IDLE: begin
             h_ready = 'b1;
@@ -122,10 +164,22 @@ always_comb begin
             rst_rd_fifo_out   = 'b1;
         end
         READ_DATA: begin
-            rd_fifo_data_en_out = 'b1;
+            rd_buffr_rd_en_out = 'b1;
         end
         BREAK_SEQ: begin
             break_seq_out = 'b1;
+        end
+        TRANSFER_DATA: begin
+            wr_buffer_wr_en_out = 'b1;
+        end
+        INDIRECT_MODE: begin
+            start_indrct_mode_out = 'b1;
+        end
+        READ_RD_BUFFER: begin
+            rd_buffr_rd_en_out = 'b1;
+        end
+        WRITE_RX_REG: begin
+            wr_rx_reg_out = 'b1;
         end
     endcase
 end

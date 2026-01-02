@@ -1,4 +1,4 @@
-module qspi_sampling_reg (
+module qspi_data_sampling_reg (
     input  logic        clk,               // System Clock (HCLK)
     input  logic        rst_n,
     input  logic        sample_en,         // Triggered by SCLK generator (sampling pulse)

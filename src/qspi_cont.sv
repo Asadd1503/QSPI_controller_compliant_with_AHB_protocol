@@ -13,11 +13,13 @@ typedef enum logic [5:0] {
     WRITE_RD_BUFFR=5'd11,
     WAIT           =5'd12,
     ONE_CYCLE_DELAY=5'd13,
-
-
-
+    LOAD_INDIRECT  =5'd14,
+    READ_STATUS    =5'd15,
+    COUNT_STATUS   =5'd16,
+    SET_DONE_FLAG  =5'd17,
+    WR_BUFFR_READ  =5'd18,
+    LOAD_DATA      =5'd19
     
-
 } state_t;
 
 module qspi_cont(
@@ -28,8 +30,13 @@ module qspi_cont(
     //=============INPUTS FROM AHB SLAVE CONT===================
     input logic start_new_xip_seq,
     input logic break_seq_in,
+    input logic start_indrct_mode_in,
     //==============INPUTS FROM SLAVE DATAPATH ==============
     input logic cpha_in,
+    input logic indrct_wr_in,
+    input logic xip_field_in,
+    //============== OUTPUTS TO SLAVE DATAPATH ==============
+    output logic set_done_flag_out,
     //============== INPUTS FROM QSPI DATAPATH =============
     input logic sclk,
     input logic addr_of_4B_in,
@@ -38,14 +45,14 @@ module qspi_cont(
     input logic use_4_io_lines_in,
     input logic count_done_in,
     input logic burst_comp_in,
-
+    input logic sent_setup_cmd_in,
     
     //============= OUTPUTS TO QSPI DATAPATH =============
     
     output logic load_cmd_out,
     output logic laod_addr_out,
     output logic load_cfg_addr_shift_reg_out,
-    output logic [1:0] cmd_sel_out,
+    output logic [2:0] cmd_sel_out,
     output logic gen_sclk_out, ///
     output logic cmd_shift_reg_en_out,
     output logic cfg_addr_shift_reg_en_out,
@@ -59,16 +66,20 @@ module qspi_cont(
     output logic data_sample_reg_en_out,
     output logic burst_count_en_out,
     output logic sel_sample_1_line_out,
-
-    
-
+    output logic sel_shift_addr_reg_out,
+    output logic set_setup_flag_out,
+    output logic load_shift_data_en_out,
+    output logic data_Shift_reg_en_out,
     //============= OUTPUTS TO AHB SLAVE CONT===================
     output logic qspi_busy_out,
     //============= OUTPUTS TO READ BUFFER =====================
     output logic wr_rd_buffr_en_out,
     //================= INPUTS FROM READ BUFFER =====================
     input logic rd_buffr_full_in,
-
+    //=============== OUTPUTS TO WRITE BUFFER ==================
+    output logic wr_buffr_rd_en_out,
+    //=============== INPUTS FROM WRITE BUFFER ==================
+    input logic wr_buffr_empty_in,
 );
 state_t c_state, n_state;
 //=========== DECLARATIONS AND ASSIGNMENTS ===============
@@ -87,14 +98,17 @@ end
 always_comb begin
     case (c_state)
         IDLE: begin
-            if (start_new_xip_seq) begin
+            if (start_indrct_mode_in) begin
+                n_state = LOAD_INDIRECT;
+            end
+            else if (start_new_xip_seq) begin
                 n_state = LOAD;
             end 
             else begin
                 n_state = IDLE;
             end
         LOAD: begin 
-            if (addr_of_4B_in = 'b1) begin
+            if (addr_of_4B_in && !sent_setup_cmd_in) begin
                 n_state = SHIFT_SETUP_CMD;
             end else begin
                 n_state = SHIFT_CMD;
@@ -114,7 +128,9 @@ always_comb begin
             n_state = COUNT_CMD;
         end
         COUNT_CMD: begin
-            if (count_done_in) begin
+            if (!indrct_wr_in && count_done_in && !xip_field_in) begin
+                n_state = READ_STATUS;
+            end else if (count_done_in) begin
                 n_state = ADDR_SHIFT;
             end else begin
                 n_state = COUNT_CMD;
@@ -124,7 +140,11 @@ always_comb begin
             n_state = ADDR_COUNT;
         end
         ADDR_COUNT: begin
-            if (count_done_in) begin
+            if (count_done_in && !xip_field_in && wr_buffr_empty_in) begin
+                n_state = SET_DONE_FLAG;
+            end else if (count_done_in && !xip_field_in && !wr_buffr_empty_in) begin
+                n_state = WR_BUFFR_READ;
+            end else if (count_done_in) begin
                 n_state = DUMMY_CYCLES;
             end else begin
                 n_state = ADDR_COUNT;
@@ -162,10 +182,49 @@ always_comb begin
             end
         end
         WRITE_RD_BUFFR: begin
-            if (cpha_in = 'b1) begin
+            if (!xip_field_in) begin
+                n_state = SET_DONE_FLAG;
+            end else if (cpha_in = 'b1) begin
                 n_state = ONE_CYCLE_DELAY;
             end else begin
                 n_state = DATA_SAMPLE;
+            end
+        end
+        LOAD_INDIRECT: begin
+            if (addr_of_4B_in && !sent_setup_cmd_in) begin
+                n_state = SHIFT_SETUP_CMD;
+            end else begin
+                n_state = SHIFT_CMD;
+            end
+        end
+        READ_STATUS: begin
+            n_state = COUNT_STATUS;
+        end
+        COUNT_STATUS: begin
+            if (count_done_in) begin
+                n_state = WRITE_RD_BUFFR;
+            end else begin
+                n_state = COUNT_STATUS;
+            end
+        end
+        SET_DONE_FLAG: begin
+            n_state = IDLE;
+        end
+        WR_BUFFR_READ: begin
+            n_state = LOAD_DATA;
+        end
+        LOAD_DATA: begin
+            if (burst_comp_in) begin
+                n_state = SET_DONE_FLAG;
+            end else begin
+                n_state = DATA_SHIFT;
+            end
+        end
+        DATA_SHIFT: begin
+            if (count_done_in) begin
+                n_state = WR_BUFFR_READ;
+            end else begin
+                n_state = DATA_SHIFT;
             end
         end
 
@@ -196,8 +255,12 @@ always_comb begin
     wr_rd_buffr_en_out = 'b0;
     burst_count_en_out = 'b0;
     sel_sample_1_line_out = 'b0;
-
-
+    sel_shift_addr_reg_out = 'b0;
+    set_done_flag_out = 'b0;
+    set_setup_flag_out = 'b0;
+    wr_buffr_rd_en_out = 'b0;
+    load_shift_data_en_out = 'b0;
+    data_Shift_reg_en_out = 'b0;
     case (c_state)
         IDLE: begin
             qspi_busy_out = 'b0;
@@ -229,6 +292,7 @@ always_comb begin
             io0_sel_out = 'b001;
             start_count_out = 'b1;
             set_count_lim_out = 'b00;
+            set_setup_flag_out = 'b1;
         end
         COUNT_SETUP_CMD: begin
             cfg_addr_shift_reg_en_out = 'b1;
@@ -316,8 +380,82 @@ always_comb begin
             wr_rd_buffr_en_out = 'b1;
             cs_n_out = 'b0;
             gen_sclk_out = 'b0;
+            if (xip_field_in) begin
+                burst_count_en_out = 'b1;
+            end
+            
+        end
+        LOAD_INDIRECT: begin
+            cs_n_out = 'b0;
+            qspi_busy_out = 'b1;
+            cmd_sel_out   = 'b100;
+            load_cmd_out  = 'b1;
+            load_addr_out = 'b1;
+            load_cfg_addr_shift_reg_out = 'b1;
+            sel_shift_addr_reg_out = 'b1;
+            if (cpha_in = 'b1) begin
+                gen_sclk_out = 'b1;
+            end
+
+        end
+        READ_STATUS: begin
+            cs_n_out = 'b0;
+            gen_sclk_out = 'b1;
+            qspi_busy_out = 'b1;
+            start_count_out = 'b1;
+            set_count_lim_out = 'b00;
+            io0_sel_out = 'b100;
+            io1_sel_out = 'b01;
+            io2_sel_out = 'b01;
+            io3_sel_out = 'b01;
+            sel_sample_1_line_out = 'b1;
+            data_sample_reg_en_out = 'b1;
+        end
+        COUNT_STATUS: begin
+            cs_n_out = 'b0;
+            gen_sclk_out = 'b1;
+            qspi_busy_out = 'b1;
+            start_count_out = 'b1;
+            set_count_lim_out = 'b00;
+            io0_sel_out = 'b100;
+            io1_sel_out = 'b01;
+            io2_sel_out = 'b01;
+            io3_sel_out = 'b01;
+            sel_sample_1_line_out = 'b1;
+            data_sample_reg_en_out = 'b1;
+        end
+        SET_DONE_FLAG: begin
+            cs_n_out = 'b1;
+            qspi_busy_out = 'b1;
+            set_done_flag_out = 'b1;
+        end
+        WR_BUFFR_READ: begin
+            wr_buffr_rd_en_out = 'b1;
+            cs_n_out = 'b0;
+            qspi_busy_out = 'b1;
             burst_count_en_out = 'b1;
         end
+        LOAD_DATA: begin
+            cs_n_out = 'b0;
+            qspi_busy_out = 'b1;
+            if (cpha_in = 'b1) begin
+                gen_sclk_out = 'b1;
+            end
+            load_shift_data_en_out = 'b1;
+        end
+        DATA_SHIFT: begin
+            cs_n_out = 'b0;
+            qspi_busy_out = 'b1;
+            gen_sclk_out = 'b1;
+            set_count_lim_out = 'b11;
+            start_count_out = 'b1;
+            data_Shift_reg_en_out = 'b1;
+            io0_sel_out = 'b101;
+            io1_sel_out = 'b11;
+            io2_sel_out = 'b11;
+            io3_sel_out = 'b11;
+        end
+
         
 
             

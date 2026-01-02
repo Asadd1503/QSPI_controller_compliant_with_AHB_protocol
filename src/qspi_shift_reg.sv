@@ -1,4 +1,4 @@
-module qspi_multi_shift_reg (
+module qspi_shift_reg (
     input  logic        clk,              // System Clock (HCLK)
     input  logic        rst_n,
     input  logic [31:0] data_in,          // Data from FIFO/AHB
