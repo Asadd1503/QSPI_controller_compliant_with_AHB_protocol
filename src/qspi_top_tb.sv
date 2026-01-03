@@ -13,13 +13,23 @@ logic [31:0] read_data;
 logic        h_ready;
 logic [1:0]  h_resp;
 logic [31:0] h_rdata;
-wire         cs_n;
-wire         sclk;
+logic         cs_n;
+logic         sclk;
 tri          io0 = 1'bz;
 tri          io1 = 1'bz;
 tri          io2 = 1'bz;
 tri          io3 = 1'bz;
+logic        busy;
+logic        send_data;
 
+
+logic [3:0] io_out = 4'b0000; 
+logic       tb_io_en = 1'b0;  // 1 = Testbench drives pins, 0 = Testbench floats (DUT drives)
+
+assign io0 = tb_io_en ? io_out[0] : 1'bz;
+assign io1 = tb_io_en ? io_out[1] : 1'bz;
+assign io2 = tb_io_en ? io_out[2] : 1'bz;
+assign io3 = tb_io_en ? io_out[3] : 1'bz;
 // Instantiate top
 qspi_top uut (
     .h_clk   (h_clk),
@@ -38,7 +48,9 @@ qspi_top uut (
     .io0     (io0),
     .io1     (io1),
     .io2     (io2),
-    .io3     (io3)
+    .io3     (io3),
+    .QSPIbusy    (busy),
+    .send_data (send_data)
 );
 
 // Clock: 10 time units period
@@ -60,18 +72,18 @@ initial begin
     h_rstn = 1;
 end
 
-// Helper task: write reg via top interface
+
 task automatic host_write(input [31:0] addr, input [31:0] data);
     @(posedge h_clk);
     h_addr  <= addr;
     h_wdata <= data;
     h_sel   <= 1'b1;
     h_write <= 1'b1;
-    //h_trans <= 2'b10;
+    h_trans <= 2'b10;
     @(posedge h_clk); // hold for one cycle
     h_sel   <= 1'b0;
     h_write <= 1'b0;
-   // h_trans <= 2'b00;
+   h_trans <= 2'b00;
     @(posedge h_clk);
 endtask
 
@@ -81,33 +93,81 @@ task automatic host_read(input [31:0] addr, output [31:0] data_out);
     h_addr  <= addr;
     h_sel   <= 1'b1;
     h_write <= 1'b0;
-    //h_trans <= 2'b10;
+    h_trans <= 2'b10;
     @(posedge h_clk); // allow slave to drive h_rdata
+    h_sel   <= 1'b0;
+    h_trans <= 2'b00;
     # 2;
     data_out = h_rdata;
-    h_sel   <= 1'b0;
-    //h_trans <= 2'b00;
+    
     //@(posedge h_clk);
+endtask
+task automatic xip_mode_test(input [31:0] addr);
+    @(posedge h_clk);
+    h_addr <= addr;
+    h_sel   <= 1'b1;
+    h_write <= 1'b0;
+    h_trans <= 2'b10;
+    h_burst <= 3'b011; // INCR4
+    @(posedge h_clk);
+    h_trans <= 2'b11; //seq
+    
+    $display("TB: Data phase detected, driving IO lines.");
+    wait(send_data == 1'b1); 
+    tb_io_en = 1'b1; 
+    for (int i=0; i<8; i++) begin
+        @(posedge sclk);
+        io_out = 4'b1010; 
+    end
+    @(posedge sclk);
+    tb_io_en = 1'b0;
+    #2;
+    wait (send_data == 1'b1);
+    tb_io_en = 1'b1;
+    for (int i=0; i<8; i++) begin
+        @(posedge sclk);
+        io_out = 4'b1100; 
+    end
+    @(posedge sclk);
+    tb_io_en = 1'b0;
+    #2;
+    wait (send_data == 1'b1);
+    tb_io_en = 1'b1;
+    for (int i=0; i<8; i++) begin
+        @(posedge sclk);
+        io_out = 4'b0011; 
+    end
+    @(posedge sclk);
+    tb_io_en = 1'b0;
+    #2;
+    wait (send_data == 1'b1);
+    tb_io_en = 1'b1;
+    for (int i=0; i<8; i++) begin
+        @(posedge sclk);
+        io_out = 4'b0011; 
+    end
+    @(posedge sclk);
+    tb_io_en = 1'b0;
 endtask
 
 initial begin
     // Wait for reset release
     @(posedge h_clk);
     //@(posedge h_clk);
-    // write ctrl reg
-    host_write(32'h00, 32'h00000002); 
-    // Write clk_div_reg @ 0x04 with 0x0000_00AA
-    host_write(32'h04, 32'h00000001); // clk/2
-    // Write cmd_reg @ 0x0C with 0x0000_005A
+    // write ctrl reg (0x00)
+    host_write(32'h00, 32'h4A); //  , XIP MODE = 1'b1, FLASH ADDR LEN = 24 bits (2'b00), IO LINES = QUAD (2'b10), CPOL = 1, CPHA = 0
+    // Write clk_div_reg (0x04)
+    host_write(32'h04, 32'h00000001); // h_clk/2
+    // Write cmd_reg (0x0C)
     host_write(32'h0C, 32'h0000005A);
-    // Write addr_reg @ 0x10 with 0x20000004
+    // Write addr_reg (0x10)
     host_write(32'h10, 32'h20000004);
 
     // Read back and check
     
     host_read(32'h00, read_data);
-    if (read_data[1:0] !== 2'b10) $display("FAIL: ctrl_reg read 0x%0h (expected 0x2)", read_data[1:0]);
-    else $display("PASS: ctrl_reg == 0x%0h", read_data[1:0]);
+    if (read_data[7:0] !== 8'h4A) $display("FAIL: ctrl_reg read 0x%0h (expected 0x4A)", read_data[7:0]);
+    else $display("PASS: ctrl_reg == 0x%0h", read_data[7:0]);
     host_read(32'h04, read_data);
     if (read_data[7:0] !== 8'h01) $display("FAIL: clk_div read 0x%0h (expected 0x01)", read_data[7:0]); 
     else $display("PASS: clk_div == 0x%0h", read_data[7:0]);
@@ -119,9 +179,13 @@ initial begin
     host_read(32'h10, read_data);
     if (read_data !== 32'h20000004) $display("FAIL: addr_reg read 0x%0h (expected 0x20000004)", read_data); 
     else $display("PASS: addr_reg == 0x%0h", read_data);
-    $display("---------------------------------------------------");
-    $display("Configuration registers wrtite and read test PASSED");
-    $display("---------------------------------------------------");
+    $display("--------------------------------------------------------");
+    $display("Configuration registers Write and Readback Test Complete");
+    $display("--------------------------------------------------------");
+    xip_mode_test(32'h20000000);
+    $display("XIP MODE TEST COMPLETE");
+
+
     #10 $finish;
 end
 endmodule

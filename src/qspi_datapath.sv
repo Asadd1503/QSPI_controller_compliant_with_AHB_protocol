@@ -51,7 +51,7 @@ module qspi_datapath (
     input logic sel_shift_addr_reg_in,
     input logic set_setup_flag_in,
     input logic load_shift_data_en_in,
-    input logic data_Shift_reg_en_in,
+    input logic data_shift_reg_en_in,
     //================ OUTPUTS TO READ BUFFER =====================
     output logic [31:0] data_sample_reg_out,
     //================ INPUTS FROM WRITE BUFFER ==================
@@ -250,7 +250,7 @@ always_comb begin
     endcase
 end
 // 2. The Physical Tri-state Driver (Continuous Assignment)
-// This is the ONLY legal way to drive an inout wire
+
 assign io0_inout = (io0_oe) ? io0_out_val : 1'bz;
 //============== IO1 SEL MUX ============================
 

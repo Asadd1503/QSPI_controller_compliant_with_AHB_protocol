@@ -17,7 +17,10 @@ module qspi_top (
     inout logic         io0,
     inout logic         io1,
     inout logic         io2,
-    inout logic         io3
+    inout logic         io3,
+    //============== TEST sIGNALS ==============
+    output logic        send_data,
+    output logic        QSPIbusy
 );
 
 logic cfg_reg_wr;
@@ -89,6 +92,7 @@ logic data_shift_reg_en;
 logic [7:0] indrct_bytes_num;
 logic wr_rx_reg;
 //assign sclk_out = sclk;
+assign QSPIbusy = qspi_busy;
 
 slave_datapath u_slave_datapath (
     //============= INPUTS FROM TOP ==================
@@ -221,7 +225,7 @@ qspi_datapath u_qspi_datapath (
     .sel_sample_1_line_in (sel_sample_1_line),
     .set_setup_flag_in (set_setup_flag),
     .load_shift_data_en_in (load_shift_data_en),
-    .data_Shift_reg_en_in (data_shift_reg_en),
+    .data_shift_reg_en_in (data_shift_reg_en),
     //============= OUTPUTS TO QSPI CONT==================
     .sclk_out_cont       (sclk_cont),
     .addr_of_4B_out (addr_of_4B),
@@ -243,6 +247,7 @@ qspi_cont u_qspi_cont (
     .h_rstn                 (h_rstn),
     //============= OUTPUTS TO TOP =================
     .cs_n_out                 (cs_n),
+    .send_data_out           (send_data),
      //=============INPUTS FROM AHB SLAVE CONT===================
     .start_new_xip_seq      (start_new_xip_seq),
     .break_seq_in           (break_seq),

@@ -29,6 +29,7 @@ module qspi_cont(
     input logic h_rstn,
     //============= OUTPUTS TO TOP =================
     output logic cs_n_out,
+    output logic send_data_out,
     //=============INPUTS FROM AHB SLAVE CONT===================
     input logic start_new_xip_seq,
     input logic break_seq_in,
@@ -261,6 +262,7 @@ always_comb begin
     wr_buffr_rd_en_out = 'b0;
     load_shift_data_en_out = 'b0;
     data_Shift_reg_en_out = 'b0;
+    send_data_out = 'b0;
     case (c_state)
         IDLE: begin
             qspi_busy_out = 'b0;
@@ -356,6 +358,7 @@ always_comb begin
             io3_sel_out = 'b10;
             start_count_out = 'b1;
             set_count_lim_out = 'b11;
+            send_data_out = 'b1;
         end
         DATA_COUNT: begin
             cs_n_out = 'b0;
@@ -367,6 +370,7 @@ always_comb begin
             io3_sel_out = 'b10;
             start_count_out = 'b1;
             set_count_lim_out = 'b11;
+            send_data_out = 'b1;
         end
         WAIT: begin
             cs_n_out = 'b0;

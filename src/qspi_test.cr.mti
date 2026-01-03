@@ -1,17 +1,17 @@
-C:/Xce_Training/QSPI/src/sync_fifo.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/sync_fifo.sv
-QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
--- Compiling module sync_fifo
-
-Top level modules:
-	sync_fifo
-
-} {} {}} C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv {2 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv
+C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv {2 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
 -- Compiling module qspi_cmd_shift_reg
 ** Warning: C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv(21): (vlog-2697) MSB 30 of part-select into 'shift_reg' is out of bounds.
 
 Top level modules:
 	qspi_cmd_shift_reg
+
+} {} {}} C:/Xce_Training/QSPI/src/qspi_top_tb.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_top_tb.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module qspi_top_tb
+
+Top level modules:
+	qspi_top_tb
 
 } {} {}} C:/Xce_Training/QSPI/src/qspi_counter.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_counter.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024

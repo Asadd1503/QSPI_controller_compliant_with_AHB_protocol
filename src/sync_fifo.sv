@@ -19,8 +19,8 @@ module sync_fifo #(
     logic [$clog2(FIFO_DEPTH)-1:0] wr_ptr, rd_ptr;
     logic [DATA_WIDTH-1:0] mem[FIFO_DEPTH-1:0];
 
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always_ff @(posedge clk or posedge rst_n) begin
+        if (rst_n) begin
             wr_ptr <= 'd0;
         end
         else if (wr_en && !full) begin
@@ -31,8 +31,8 @@ module sync_fifo #(
     end
 
  
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always_ff @(posedge clk or posedge rst_n) begin
+        if (rst_n) begin
             count <= 'd0;
         end
         else begin
@@ -52,8 +52,8 @@ module sync_fifo #(
     end
 
     
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always_ff @(posedge clk or posedge rst_n) begin
+        if (rst_n) begin
             rd_ptr <= 'd0;  
         end
         else if (rd_en && !empty) begin
@@ -63,8 +63,8 @@ module sync_fifo #(
     end
 
   
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always_ff @(posedge clk or posedge rst_n) begin
+        if (rst_n) begin
             rd_data <= 'd0;
         end
         else if (rd_en && !empty) begin

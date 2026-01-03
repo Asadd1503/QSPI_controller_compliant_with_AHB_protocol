@@ -73,7 +73,9 @@ logic cfg_reg_rd_en;
 logic [2:0] hrDATAsel; // 00 - read buffer, 01 - rx_data_reg, 10 - status_reg
 logic clear_status_reg;
 
-
+assign cpha = ctrl_reg[0];
+assign cpol = ctrl_reg[1];
+assign no_io_lines_used = ctrl_reg[3:2]; // 00 - 1 line, 01 - 2 lines, 10 - 4
 assign xip_field      = ctrl_reg[6];  // 1 --> XIP MODE ENABLED, 0 --> INDIRECT MODE
 assign flash_addr_len = ctrl_reg[5:4];
 assign addr_in        = h_addr;
@@ -87,7 +89,7 @@ assign hburst_reg_out = h_burst_reg;
 assign wr_buffr_wr_data_out = tx_data_reg;
 assign indrct_start = ctrl_reg[7]; // Start bit for indirect transfers
 assign cmd_reg_out = cmd_reg[7:0];
-assign indirct_wr_out = ctrl_reg[16]; // 1 - write, 0 - read
+assign indrct_wr_out = ctrl_reg[16]; // 1 - write, 0 - read
 assign xip_field_out = xip_field;
 assign indrct_bytes_num_out = ctrl_reg[15:8]; // Number of bytes to transfer in indirect mode
 //=============================================================
@@ -109,12 +111,12 @@ always_comb begin
         cfg_reg_addr_in_range = 1'b0;
     end
     //--------------------------------------------------------------------
-    if (cfg_reg_addr_in_range == 'b1 && h_write == 'b1 && h_sel == 'b1) begin
+    if (cfg_reg_addr_in_range == 'b1 && h_write == 'b1 && h_sel == 'b1 && h_trans != 2'b00) begin
         cfg_reg_wr_en = 'b1;
     end else begin
         cfg_reg_wr_en = 'b0;
     end
-    if (cfg_reg_addr_in_range == 'b1 && h_write == 'b0 && h_sel == 'b1) begin
+    if (cfg_reg_addr_in_range == 'b1 && h_write == 'b0 && h_sel == 'b1 && h_trans != 2'b00) begin
         cfg_reg_rd_en = 'b1;
     end else begin
         cfg_reg_rd_en = 'b0;
@@ -141,7 +143,7 @@ always_comb begin
         flash_addr_in_range = 1'b0;
     end
     //---------------------------------------------------------------------
-    if ( flash_addr_in_range == 'b1 && h_write == 'b0 && h_sel == 'b1 && h_trans == 'b00 && xip_field == 'b1) begin
+    if ( flash_addr_in_range == 'b1 && h_write == 'b0 && h_sel == 'b1 && h_trans == 'b10 && xip_field == 'b1) begin
         enter_xip_mode = 'b1;
     end else begin
         enter_xip_mode = 'b0;
@@ -149,11 +151,17 @@ always_comb begin
 end
 //================ TRANSFER SIGNAL LOGIC ========================
 always_comb begin
+    idle_out = 'b0;
+    busy_out = 'b0;
+    non_Seq_out = 'b0;
+    seq_out = 'b0;
     case (h_trans) 
-        2'b00: non_Seq_out = 'b1;
-        2'b01: seq_out =     'b1;
-        2'b10: idle_out =    'b1;
-        2'b11: busy_out =    'b1;
+        2'b00: idle_out =    'b1;
+        2'b01: busy_out =    'b1;
+        2'b10: non_Seq_out = 'b1;
+        2'b11: seq_out =     'b1;
+        
+        
     endcase
     
 end
@@ -162,10 +170,7 @@ end
 //================== ADDRESS ERROR GENERATOR  =================
 always_comb begin
     h_resp = 2'b00; //OKAY
-    if (h_sel == 1'b1 && cfg_reg_addr_in_range == 'b0) begin
-        h_resp = 2'b10; //SLVERR
-    end
-    else if (h_sel == 'b1 && flash_addr_in_range == 'b0 && xip_field == 'b1) begin
+    if ((h_sel == 1'b1 && cfg_reg_addr_in_range == 'b0) && (h_sel == 'b1 && flash_addr_in_range == 'b0)) begin
         h_resp = 2'b10; //SLVERR
     end
 end
