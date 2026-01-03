@@ -21,8 +21,8 @@ module qspi_top (
 );
 
 logic cfg_reg_wr;
-logic enter_xip_mode;
-logic cfg_reg_wr_en,
+//logic enter_xip_mode;
+//logic cfg_reg_wr_en;
 logic load_h_addr;
 logic load_h_burst;
 //logic clk_div;
@@ -105,7 +105,7 @@ slave_datapath u_slave_datapath (
     .h_resp             (h_resp),
     //.h_rdata_out        (h_rdata),
     //============== OUTPUTS TO SLAVE CONTROLLER ==============
-    .cfg_reg_wr         (cfg_reg_wr),
+    //.cfg_reg_wr         (cfg_reg_wr),
     .enter_xip_mode     (enter_xip_mode),
     .non_Seq_out        (non_seq),
     .seq_out            (seq),
@@ -146,7 +146,7 @@ slave_controller u_slave_controller (
     //============= OUTPUTS TO TOP =================
     .h_ready            (h_ready),
     //============== INPUTS FROM SLAVE DATAPATH ==============
-    .cfg_reg_wr         (cfg_reg_wr),
+    //.cfg_reg_wr         (cfg_reg_wr),
     .enter_xip_mode     (enter_xip_mode),
     .non_seq_in         (non_seq),
     .seq_in             (seq),
@@ -154,6 +154,7 @@ slave_controller u_slave_controller (
     .busy_in            (busy),
     .tx_data_valid_in   (tx_data_valid),
     .enter_indrct_mode_in (enter_indrct_mode),
+    .xip_field_in       (xip_field),
     //============== OUTPUTS TO SLAVE DATAPATH ==============
     .cfg_reg_wr_en      (cfg_reg_wr_en),
     .load_h_addr        (load_h_addr),
@@ -300,10 +301,10 @@ qspi_cont u_qspi_cont (
 
 );
 //====================== READ BUFFER ==========================
-sync_fifo read_buffer # (
+sync_fifo #(
     .DATA_WIDTH (32),
     .FIFO_DEPTH (16)
-)(
+) read_buffer (
     .clk            (h_clk),
     // INPUT FROM SLAVE CONTROLLER
     .rst_n          (rst_rd_fifo),
@@ -317,10 +318,10 @@ sync_fifo read_buffer # (
     .empty          (rd_fifo_empty)  
 );
 //====================== READ BUFFER ==========================
-sync_fifo write_buffer # (
+sync_fifo #(
     .DATA_WIDTH (32),
     .FIFO_DEPTH (64)        // 256/4 = 64 words
-)(
+) write_buffer (
     .clk            (h_clk),
     .rst_n          (h_rstn),
     // Write Side

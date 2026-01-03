@@ -1,4 +1,4 @@
-typedef enum logic [5:0] {
+typedef enum logic [4:0] {
     IDLE =          5'd0,
     LOAD =          5'd1,
     SHIFT_SETUP_CMD=5'd2,
@@ -6,7 +6,7 @@ typedef enum logic [5:0] {
     SHIFT_CMD      =5'd4,
     COUNT_CMD     = 5'd5,
     ADDR_SHIFT     =5'd6,
-    ADDR_COUNT     =5'd7,
+    COUNT_ADDR     =5'd7,
     DUMMY_CYCLES   =5'd8,
     DATA_SAMPLE     =5'd9,
     DATA_COUNT     =5'd10,
@@ -18,7 +18,9 @@ typedef enum logic [5:0] {
     COUNT_STATUS   =5'd16,
     SET_DONE_FLAG  =5'd17,
     WR_BUFFR_READ  =5'd18,
-    LOAD_DATA      =5'd19
+    LOAD_DATA      =5'd19,
+    DATA_SHIFT     =5'd20
+
     
 } state_t;
 
@@ -50,7 +52,7 @@ module qspi_cont(
     //============= OUTPUTS TO QSPI DATAPATH =============
     
     output logic load_cmd_out,
-    output logic laod_addr_out,
+    output logic load_addr_out,
     output logic load_cfg_addr_shift_reg_out,
     output logic [2:0] cmd_sel_out,
     output logic gen_sclk_out, ///
@@ -79,7 +81,7 @@ module qspi_cont(
     //=============== OUTPUTS TO WRITE BUFFER ==================
     output logic wr_buffr_rd_en_out,
     //=============== INPUTS FROM WRITE BUFFER ==================
-    input logic wr_buffr_empty_in,
+    input logic wr_buffr_empty_in
 );
 state_t c_state, n_state;
 //=========== DECLARATIONS AND ASSIGNMENTS ===============
@@ -107,6 +109,7 @@ always_comb begin
             else begin
                 n_state = IDLE;
             end
+        end
         LOAD: begin 
             if (addr_of_4B_in && !sent_setup_cmd_in) begin
                 n_state = SHIFT_SETUP_CMD;
@@ -114,6 +117,7 @@ always_comb begin
                 n_state = SHIFT_CMD;
             end
         end
+        
         SHIFT_SETUP_CMD: begin
             n_state = COUNT_SETUP_CMD;
         end
@@ -137,9 +141,9 @@ always_comb begin
             end
         end
         ADDR_SHIFT: begin
-            n_state = ADDR_COUNT;
+            n_state = COUNT_ADDR;
         end
-        ADDR_COUNT: begin
+        COUNT_ADDR: begin
             if (count_done_in && !xip_field_in && wr_buffr_empty_in) begin
                 n_state = SET_DONE_FLAG;
             end else if (count_done_in && !xip_field_in && !wr_buffr_empty_in) begin
@@ -147,7 +151,7 @@ always_comb begin
             end else if (count_done_in) begin
                 n_state = DUMMY_CYCLES;
             end else begin
-                n_state = ADDR_COUNT;
+                n_state = COUNT_ADDR;
             end
         end
         DUMMY_CYCLES: begin
@@ -158,7 +162,7 @@ always_comb begin
             end
         end
         DATA_SAMPLE: begin
-            if (burst_comp_in || break_seq_i ) begin
+            if (burst_comp_in || break_seq_in ) begin
                 n_state = IDLE;
             end else begin
                 n_state = DATA_COUNT;
@@ -184,7 +188,7 @@ always_comb begin
         WRITE_RD_BUFFR: begin
             if (!xip_field_in) begin
                 n_state = SET_DONE_FLAG;
-            end else if (cpha_in = 'b1) begin
+            end else if (cpha_in == 'b1) begin
                 n_state = ONE_CYCLE_DELAY;
             end else begin
                 n_state = DATA_SAMPLE;
@@ -228,10 +232,6 @@ always_comb begin
             end
         end
 
-
-
-    end
-
     endcase
 end
 //============ OUTPUT LOGIC =================
@@ -271,17 +271,17 @@ always_comb begin
             load_addr_out      = 'b1;
             load_cfg_addr_shift_reg_out = 'b1;
             cs_n_out           = 'b0;
-            if (cpha_in = 'b1) begin
+            if (cpha_in == 'b1) begin
                 gen_sclk_out = 'b1;
 
             end
-            if (addr_of_4B_in = 'b1 && use_4_io_lines_in = 'b1) begin
+            if (addr_of_4B_in == 'b1 && use_4_io_lines_in == 'b1) begin
                 cmd_sel_out = 'b00;
-            end else if (addr_of_4B_in = 'b1 && use_1_io_lines_in = 'b1) begin
+            end else if (addr_of_4B_in == 'b1 && use_1_io_lines_in == 'b1) begin
                 cmd_sel_out = 'b01;
-            end else if (addr_of_4B_in = 'b0 && use_4_io_lines_in = 'b1) begin
+            end else if (addr_of_4B_in == 'b0 && use_4_io_lines_in == 'b1) begin
                 cmd_sel_out = 'b10;
-            end else if (addr_of_4B_in = 'b0 && use_1_io_lines_in = 'b1) begin
+            end else if (addr_of_4B_in == 'b0 && use_1_io_lines_in == 'b1) begin
                 cmd_sel_out = 'b11;
             end
         end
@@ -393,7 +393,7 @@ always_comb begin
             load_addr_out = 'b1;
             load_cfg_addr_shift_reg_out = 'b1;
             sel_shift_addr_reg_out = 'b1;
-            if (cpha_in = 'b1) begin
+            if (cpha_in == 'b1) begin
                 gen_sclk_out = 'b1;
             end
 
@@ -438,7 +438,7 @@ always_comb begin
         LOAD_DATA: begin
             cs_n_out = 'b0;
             qspi_busy_out = 'b1;
-            if (cpha_in = 'b1) begin
+            if (cpha_in == 'b1) begin
                 gen_sclk_out = 'b1;
             end
             load_shift_data_en_out = 'b1;
@@ -455,18 +455,6 @@ always_comb begin
             io2_sel_out = 'b11;
             io3_sel_out = 'b11;
         end
-
-        
-
-            
-
-
-
-
-
-
-
-
     endcase
 end
 

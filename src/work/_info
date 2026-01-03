@@ -1,0 +1,392 @@
+m255
+K4
+z2
+!s11f vlog 2024.1 2024.02, Feb  1 2024
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+dC:/fyp/ldpc_decoder/ber_curves
+vbeat_counter
+2C:/Xce_Training/QSPI/src/beat_counter.sv
+Z0 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+Z1 !s110 1767444871
+!i10b 1
+!s100 >_CfdSFbb]8IDWZQgaH:A3
+I0bjRn5:KLjcX2J0c72m?d0
+S1
+Z2 dC:/Xce_Training/QSPI/src
+w1767355941
+8C:/Xce_Training/QSPI/src/beat_counter.sv
+FC:/Xce_Training/QSPI/src/beat_counter.sv
+!i122 235
+L0 1 50
+Z3 VDg1SIo80bB@j0V0VzS_@n1
+Z4 OL;L;2024.1;79
+r1
+!s85 0
+31
+Z5 !s108 1767444871.000000
+!s107 C:/Xce_Training/QSPI/src/beat_counter.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/beat_counter.sv|
+!i113 0
+Z6 o-work work -sv -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+Z7 tCvgOpt 0
+vqspi_clk_gen
+2C:/Xce_Training/QSPI/src/qspi_clk_gen.sv
+R0
+R1
+!i10b 1
+!s100 6O3nU49QEcI`D8lMGP?UU1
+IF`>9b^`=Y`=ZYVBeNPNLi1
+S1
+R2
+w1767436869
+8C:/Xce_Training/QSPI/src/qspi_clk_gen.sv
+FC:/Xce_Training/QSPI/src/qspi_clk_gen.sv
+!i122 236
+L0 1 32
+R3
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/Xce_Training/QSPI/src/qspi_clk_gen.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_clk_gen.sv|
+!i113 0
+R6
+R7
+vqspi_cmd_shift_reg
+2C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv
+R0
+Z8 !s110 1767444872
+!i10b 1
+!s100 EGzO<<S_FQDjmIoF99>Wc1
+IF=]7M>UX<2MdkQG8lWD>[2
+S1
+R2
+w1766159781
+8C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv
+FC:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv
+!i122 237
+L0 1 28
+R3
+R4
+r1
+!s85 0
+31
+Z9 !s108 1767444872.000000
+!s107 C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv|
+!i113 0
+R6
+R7
+vqspi_cont
+Z10 2C:/Xce_Training/QSPI/src/qspi_cont.sv
+R0
+DXx4 work 17 qspi_cont_sv_unit 0 22 kOS5EKbUBPLZSnlzcYY?]3
+R8
+R3
+r1
+!s85 0
+!i10b 1
+!s100 E]he<9XhfQ=WbA`8TlQOo2
+IfBh;X`cG;YjF6L0W;bDJa1
+!s105 qspi_cont_sv_unit
+S1
+R2
+Z11 w1767441656
+Z12 8C:/Xce_Training/QSPI/src/qspi_cont.sv
+Z13 FC:/Xce_Training/QSPI/src/qspi_cont.sv
+!i122 238
+L0 27 435
+R4
+31
+R9
+Z14 !s107 C:/Xce_Training/QSPI/src/qspi_cont.sv|
+Z15 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_cont.sv|
+!i113 0
+R6
+R7
+Xqspi_cont_sv_unit
+R10
+R0
+R8
+VkOS5EKbUBPLZSnlzcYY?]3
+r1
+!s85 0
+!i10b 1
+!s100 Gm0n396^aY2Mf[e_VEJTT1
+IkOS5EKbUBPLZSnlzcYY?]3
+!i103 1
+S1
+R2
+R11
+R12
+R13
+!i122 238
+Z16 L0 1 0
+R4
+31
+R9
+R14
+R15
+!i113 0
+R6
+R7
+vqspi_counter
+2C:/Xce_Training/QSPI/src/qspi_counter.sv
+R0
+R8
+!i10b 1
+!s100 od@GEOVg`0=G;4T]PH1Q[0
+IbK4WM]VE?K1Qj^@dHk:fj2
+S1
+R2
+w1767441684
+8C:/Xce_Training/QSPI/src/qspi_counter.sv
+FC:/Xce_Training/QSPI/src/qspi_counter.sv
+!i122 239
+L0 1 41
+R3
+R4
+r1
+!s85 0
+31
+R9
+!s107 C:/Xce_Training/QSPI/src/qspi_counter.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_counter.sv|
+!i113 0
+R6
+R7
+vqspi_data_sampling_reg
+2C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
+R0
+R8
+!i10b 1
+!s100 WGZL3Va]L1aa[PK<0BDZf0
+IG^RhI3W@;D7?;159T^I8z2
+S1
+R2
+w1767355960
+8C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
+FC:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
+!i122 240
+L0 1 45
+R3
+R4
+r1
+!s85 0
+31
+R9
+!s107 C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv|
+!i113 0
+R6
+R7
+vqspi_datapath
+2C:/Xce_Training/QSPI/src/qspi_datapath.sv
+R0
+R8
+!i10b 1
+!s100 e68X1IeI3QgUaQ4786dIl0
+ICS[UiTYG557lS=b5@W4751
+S1
+R2
+w1767443157
+8C:/Xce_Training/QSPI/src/qspi_datapath.sv
+FC:/Xce_Training/QSPI/src/qspi_datapath.sv
+!i122 241
+L0 1 478
+R3
+R4
+r1
+!s85 0
+31
+R9
+!s107 C:/Xce_Training/QSPI/src/qspi_datapath.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_datapath.sv|
+!i113 0
+R6
+R7
+vqspi_shift_reg
+2C:/Xce_Training/QSPI/src/qspi_shift_reg.sv
+R0
+Z17 !s110 1767444873
+!i10b 1
+!s100 eIYNgXgSEYJoH0YSH=nBM1
+IP?7X7h=C_BWG?an>S`ME81
+S1
+R2
+w1767443272
+8C:/Xce_Training/QSPI/src/qspi_shift_reg.sv
+FC:/Xce_Training/QSPI/src/qspi_shift_reg.sv
+!i122 242
+L0 1 68
+R3
+R4
+r1
+!s85 0
+31
+Z18 !s108 1767444873.000000
+!s107 C:/Xce_Training/QSPI/src/qspi_shift_reg.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_shift_reg.sv|
+!i113 0
+R6
+R7
+vqspi_top
+2C:/Xce_Training/QSPI/src/qspi_top.sv
+R0
+R17
+!i10b 1
+!s100 :mka<dYz[gF_VcGVcT>UA2
+ICFekO?A><Ub`_I9IdXgh_3
+S1
+R2
+w1767444287
+8C:/Xce_Training/QSPI/src/qspi_top.sv
+FC:/Xce_Training/QSPI/src/qspi_top.sv
+!i122 243
+L0 1 337
+R3
+R4
+r1
+!s85 0
+31
+R18
+!s107 C:/Xce_Training/QSPI/src/qspi_top.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_top.sv|
+!i113 0
+R6
+R7
+vqspi_top_tb
+2C:/Xce_Training/QSPI/src/qspi_top_tb.sv
+R0
+R17
+!i10b 1
+!s100 c9TXmS4Gg<>UAB@Se@4g:2
+IC2LWmLE:kFf:ahod;j5ef0
+S1
+R2
+w1767444059
+8C:/Xce_Training/QSPI/src/qspi_top_tb.sv
+FC:/Xce_Training/QSPI/src/qspi_top_tb.sv
+!i122 244
+L0 1 125
+R3
+R4
+r1
+!s85 0
+31
+R18
+!s107 C:/Xce_Training/QSPI/src/qspi_top_tb.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_top_tb.sv|
+!i113 0
+R6
+R7
+vslave_controller
+Z19 2C:/Xce_Training/QSPI/src/slave_controller.sv
+R0
+DXx4 work 24 slave_controller_sv_unit 0 22 R5L08zLB>^055]ZDGLeY?2
+R17
+R3
+r1
+!s85 0
+!i10b 1
+!s100 O1_^QO^g2B3T:Q`hPk^e`3
+IoHk83o1=@DFAR9<gh_W>L3
+!s105 slave_controller_sv_unit
+S1
+R2
+Z20 w1767444231
+Z21 8C:/Xce_Training/QSPI/src/slave_controller.sv
+Z22 FC:/Xce_Training/QSPI/src/slave_controller.sv
+!i122 245
+L0 15 179
+R4
+31
+R18
+Z23 !s107 C:/Xce_Training/QSPI/src/slave_controller.sv|
+Z24 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/slave_controller.sv|
+!i113 0
+R6
+R7
+Xslave_controller_sv_unit
+R19
+R0
+R17
+VR5L08zLB>^055]ZDGLeY?2
+r1
+!s85 0
+!i10b 1
+!s100 :R24QI>k3YZ>m`SJI9dSf1
+IR5L08zLB>^055]ZDGLeY?2
+!i103 1
+S1
+R2
+R20
+R21
+R22
+!i122 245
+R16
+R4
+31
+R18
+R23
+R24
+!i113 0
+R6
+R7
+vslave_datapath
+2C:/Xce_Training/QSPI/src/slave_datapath.sv
+R0
+R17
+!i10b 1
+!s100 lK[JoDMAHPbcYFeR07?_z1
+IMLOdUaLFa3=m8hUUK:mC61
+S1
+R2
+w1767444866
+8C:/Xce_Training/QSPI/src/slave_datapath.sv
+FC:/Xce_Training/QSPI/src/slave_datapath.sv
+!i122 246
+L0 1 276
+R3
+R4
+r1
+!s85 0
+31
+R18
+!s107 C:/Xce_Training/QSPI/src/slave_datapath.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/slave_datapath.sv|
+!i113 0
+R6
+R7
+vsync_fifo
+2C:/Xce_Training/QSPI/src/sync_fifo.sv
+R0
+!s110 1767444874
+!i10b 1
+!s100 7`XP5FAa]]n:4n3EQ]K7J0
+I]bW2Pe;f4f43TeC;4G:Li0
+S1
+R2
+w1767443617
+8C:/Xce_Training/QSPI/src/sync_fifo.sv
+FC:/Xce_Training/QSPI/src/sync_fifo.sv
+!i122 247
+L0 1 81
+R3
+R4
+r1
+!s85 0
+31
+!s108 1767444874.000000
+!s107 C:/Xce_Training/QSPI/src/sync_fifo.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/sync_fifo.sv|
+!i113 0
+R6
+R7

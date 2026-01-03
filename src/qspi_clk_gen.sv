@@ -10,12 +10,12 @@ module qspi_clk_gen (
 
     // 1. Frequency Divider Logic
     // SCLK frequency = HCLK / (2 * (clk_div + 1))
-    always_ff @(posedge hclk or negedge hreset_n) begin
-        if (!hreset_n) begin
+    always_ff @(posedge h_clk or negedge h_rstn) begin
+        if (!h_rstn) begin
             count        <= 8'h0;
             internal_clk <= 1'b0;
         end else begin
-            if (count == clk_div) begin
+            if (count == clk_div_in) begin
                 count        <= 8'h0;
                 internal_clk <= ~internal_clk; 
             end else begin

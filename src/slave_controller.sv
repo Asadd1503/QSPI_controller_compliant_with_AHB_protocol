@@ -21,12 +21,13 @@ module slave_controller (
     //============== INPUTS FROM SLAVE DATAPATH ==============
     //input logic cfg_reg_wr,
     input logic enter_xip_mode,
-    input logic non_Seq_in,
+    input logic non_seq_in,
     input logic seq_in,
     input logic idle_in,
     input logic busy_in,
     input logic tx_data_valid_in,
     input logic enter_indrct_mode_in,
+    input logic xip_field_in,
     //============== OUTPUTS TO DATAPATH ==============
     //output logic cfg_reg_wr_en,
     output logic load_h_addr,

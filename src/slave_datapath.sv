@@ -5,13 +5,13 @@ module slave_datapath (
     input logic [31:0]  h_wdata,
     input logic [31:0]  h_addr,
     input logic [2:0]   h_burst,
-    input logic [1:0]   h_trans_in,
+    input logic [1:0]   h_trans,
     input logic         h_write,
     input logic         h_sel,
     //--------------- OUTPUTS---------------
     //output logic        h_ready,
     output logic [1:0]  h_resp,
-    output logic [31:0] h_rdata
+    output logic [31:0] h_rdata,
     //============== OUTPUT TO SLAVE CONTROLLER ==============
     //output logic cfg_reg_wr,
     output logic enter_xip_mode,
@@ -70,7 +70,7 @@ logic cpol;
 logic cpha;
 logic cfg_reg_wr_en;
 logic cfg_reg_rd_en;
-logic [1:0] hrDATAsel; // 00 - read buffer, 01 - rx_data_reg, 10 - status_reg
+logic [2:0] hrDATAsel; // 00 - read buffer, 01 - rx_data_reg, 10 - status_reg
 logic clear_status_reg;
 
 
@@ -109,12 +109,12 @@ always_comb begin
         cfg_reg_addr_in_range = 1'b0;
     end
     //--------------------------------------------------------------------
-    if (cfg_reg_addr_in_range = 'b1 && h_write = 'b1 && h_sel = 'b1) begin
+    if (cfg_reg_addr_in_range == 'b1 && h_write == 'b1 && h_sel == 'b1) begin
         cfg_reg_wr_en = 'b1;
     end else begin
         cfg_reg_wr_en = 'b0;
     end
-    if (cfg_reg_addr_in_range = 'b1 && h_write = 'b0 && h_sel = 'b1) begin
+    if (cfg_reg_addr_in_range == 'b1 && h_write == 'b0 && h_sel == 'b1) begin
         cfg_reg_rd_en = 'b1;
     end else begin
         cfg_reg_rd_en = 'b0;
@@ -122,14 +122,14 @@ always_comb begin
     
 
     //---------------------------------------------------------------------
-    if ( flash_addr_len = 2'b00 ) begin
+    if ( flash_addr_len == 2'b00 ) begin
         // 3 byte address
         if (addr_in >= 32'h2000_0000 && addr_in <= 32'h20FF_FFFF) begin // 32'h20FF_FFFF = 16 MB flash
             flash_addr_in_range = 1'b1;
         end else begin
             flash_addr_in_range = 1'b0;
         end
-    end else if ( flash_addr_len = 2'b01 ) begin
+    end else if ( flash_addr_len == 2'b01 ) begin
         // 4 byte address
         if (addr_in >= 32'h2000_0000 && addr_in <= 32'h27FF_FFFF) begin // 32'h27FF_FFFF = 128 MB flash
             flash_addr_in_range = 1'b1;
@@ -141,7 +141,7 @@ always_comb begin
         flash_addr_in_range = 1'b0;
     end
     //---------------------------------------------------------------------
-    if ( flash_addr_in_range = 'b1 && h_write = 'b0 && h_sel = 'b1 && h_trans = 'b00 && xip_field = 'b1) begin
+    if ( flash_addr_in_range == 'b1 && h_write == 'b0 && h_sel == 'b1 && h_trans == 'b00 && xip_field == 'b1) begin
         enter_xip_mode = 'b1;
     end else begin
         enter_xip_mode = 'b0;
@@ -149,7 +149,7 @@ always_comb begin
 end
 //================ TRANSFER SIGNAL LOGIC ========================
 always_comb begin
-    case (h_trans_in) 
+    case (h_trans) 
         2'b00: non_Seq_out = 'b1;
         2'b01: seq_out =     'b1;
         2'b10: idle_out =    'b1;
@@ -176,7 +176,7 @@ always_ff @(posedge h_clk or negedge h_rstn) begin
     tx_data_valid_out <= 'b0;
     if (!h_rstn) begin
         ctrl_reg    <= 32'b0;
-        clk_div     <= 32'b0;
+        clk_div_reg  <= 32'b0;
         cmd_reg     <= 32'b0;
         addr_reg    <= 32'b0;
         tx_data_reg <= 32'b0;
@@ -187,7 +187,7 @@ always_ff @(posedge h_clk or negedge h_rstn) begin
         if (cfg_reg_wr_en) begin
             unique case (addr_in)
                 32'h00: ctrl_reg    <= h_wdata;
-                32'h04: clk_div     <= h_wdata;
+                32'h04: clk_div_reg <= h_wdata;
                 32'h0C: cmd_reg     <= h_wdata;
                 32'h10: addr_reg    <= h_wdata;
                 32'h14: begin
@@ -199,8 +199,13 @@ always_ff @(posedge h_clk or negedge h_rstn) begin
         end
         else if (cfg_reg_rd_en) begin
             unique case (addr_in)
-                32'h08: hrDATAsel <= 2'b01; // read status reg
-                32'h18: hrDATAsel <= 2'b10; // read rx data reg
+                32'h08: hrDATAsel <= 3'b001; // read status reg
+                32'h18: hrDATAsel <= 3'b010; // read rx data reg
+                32'h00: hrDATAsel <= 3'b011; // read ctrl reg
+                32'h04: hrDATAsel <= 3'b100; // read clk div reg
+                32'h0C: hrDATAsel <= 3'b101; // read cmd reg
+                32'h10: hrDATAsel <= 3'b110; // read addr reg
+                32'h14: hrDATAsel <= 3'b111; // read tx data reg
             endcase
         end
         if (wr_rx_reg_in) begin
@@ -248,12 +253,17 @@ end
 always_comb begin
     clear_status_reg = 'b0;
     case (hrDATAsel)
-        2'b00; h_rdata = rd_buffr_data_in;
-        2'b01; h_rdata = rx_data_reg;
-        2'b10; begin
+        3'b000: h_rdata = rd_buffr_data_in;
+        3'b001: h_rdata = rx_data_reg;
+        3'b010: begin
             h_rdata = status_reg;
             clear_status_reg = 'b1;
         end
+        3'b011: h_rdata = ctrl_reg;
+        3'b100: h_rdata = clk_div_reg;
+        3'b101: h_rdata = cmd_reg;
+        3'b110: h_rdata = addr_reg;
+        3'b111: h_rdata = tx_data_reg;  
         default: h_rdata = 32'd0;
     endcase
 end

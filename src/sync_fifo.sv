@@ -1,8 +1,6 @@
 module sync_fifo #(
     parameter int DATA_WIDTH = 32,
-    parameter int FIFO_DEPTH = 16,
-    parameter int ALMOST_FULL_THRESH = 14,
-    parameter int ALMOST_EMPTY_THRESH = 2
+    parameter int FIFO_DEPTH = 16
 )(
     input  logic                    clk,
     input  logic                    rst_n,
@@ -11,9 +9,9 @@ module sync_fifo #(
     input  logic                    rd_en,
     output logic [DATA_WIDTH-1:0]   rd_data,
     output logic                    full,
-    output logic                    empty,
-    output logic                    almost_full,
-    output logic                    almost_empty
+    output logic                    empty
+    //output logic                    almost_full,
+    //output logic                    almost_empty
     
 );
 
@@ -50,7 +48,7 @@ module sync_fifo #(
    
     always_comb begin
         full = (count == FIFO_DEPTH);
-        almost_full = (count >= ALMOST_FULL_THRESH);
+        //almost_full = (count >= ALMOST_FULL_THRESH);
     end
 
     
@@ -77,7 +75,7 @@ module sync_fifo #(
     
     always_comb begin
         empty = (count == 'd0);
-        almost_empty = (count <= ALMOST_EMPTY_THRESH);
+        //almost_empty = (count <= ALMOST_EMPTY_THRESH);
     end
 
 endmodule

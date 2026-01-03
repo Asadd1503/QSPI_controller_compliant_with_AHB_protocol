@@ -35,7 +35,7 @@ module qspi_datapath (
     input logic gen_sclk_in,
     input logic [1:0] cmd_sel_in,
     input logic cmd_shift_reg_en_in,
-    input logic load_cfg_addr_shift_reg_in,
+    //input logic load_cfg_addr_shift_reg_in,
     input logic cfg_addr_shift_reg_en_in,
     input logic start_count_in,
     input logic [1:0] set_count_lim_in,
@@ -49,7 +49,7 @@ module qspi_datapath (
     input logic burst_count_en_in,
     input logic sel_shift_addr_reg_in,
     input logic set_setup_flag_in,
-    input logoc load_shift_data_en_in,
+    input logic load_shift_data_en_in,
     input logic data_Shift_reg_en_in,
     //================ OUTPUTS TO READ BUFFER =====================
     output logic [31:0] data_sample_reg_out,
@@ -87,6 +87,22 @@ logic data_sample_reg_in1;
 logic data_sample_reg_in2;
 logic data_sample_reg_in3;
 logic [3:0] total_beats;
+
+// Internal signals to control the pin
+logic io0_out_val; // The value we WANT to send out
+logic io0_oe;      // Output Enable (1 = Drive Output, 0 = Input/High-Z)
+
+// --- Internal Signals for IO1 ---
+logic io1_out_val; // Value to drive out
+logic io1_oe;      // Output Enable (1 = Output, 0 = Input)
+
+// --- Internal Signals for IO3 ---
+logic io3_out_val; // Value to drive out
+logic io3_oe;      // Output Enable (1 = Output, 0 = Input)
+
+// --- Internal Signals for IO2 ---
+logic io2_out_val; // Value to drive out
+logic io2_oe;      // Output Enable (1 = Output, 0 = Input)
 
 
 assign use_1_io_lines_out = use_1_io_lines;
@@ -187,7 +203,7 @@ qspi_shift_reg data_shift_reg (
 );
 //================= SAMPLE REG IO1 SELECT LOGIC ====================
 always_comb begin
-    if (sel_sample_1_line_in = 'b1) begin
+    if (sel_sample_1_line_in == 'b1) begin
         use_1_io_lines_sample_reg = 'b1;
     end else begin
         use_1_io_lines_sample_reg = use_1_io_lines;
@@ -196,46 +212,135 @@ end
 
 
 //============== IO0 SEL MUX ============================
+
+// 1. Logic to determine what to do (Procedural Block)
 always_comb begin
+    // Defaults to prevent latches
+    io0_out_val = 1'b0; 
+    io0_oe      = 1'b0; 
+    data_sample_reg_in0 = 1'b0;
     case (io0_sel_in)
-        3'b000: io0_inout = 1'bz;
-        3'b001: io0_inout = cfg_addr_shift_reg_out;
-        3'b010: io0_inout = cmd_shift_reg_out;
-        3'b011: io0_inout = addr_shift_reg_out0;
-        3'b100: data_sample_reg_in0 = io0_inout;
-        3'b101: io0_inout = data_shift_reg_out0;
-        //------------- TBD
-    endcase
-    
-end
-//============== IO1 SEL MUX ============================
-always_comb begin
-    case (io1_sel_in)
-        2'b00: io1_inout = 1'bz;
-        2'b01: io1_inout = addr_shift_reg_out1;
-        2'b10: data_sample_reg_in1 = io1_inout;
-        2'b11: io1_inout = data_shift_reg_out1;
+        3'b000: begin
+            io0_oe = 1'b0;        // High-Z state
+        end
         
+        3'b001: begin
+            io0_out_val = cfg_addr_shift_reg_out;
+            io0_oe      = 1'b1;   // Enable Output
+        end
+        3'b010: begin
+            io0_out_val = cmd_shift_reg_out;
+            io0_oe      = 1'b1;   // Enable Output
+        end
+        3'b011: begin
+            io0_out_val = addr_shift_reg_out0;
+            io0_oe      = 1'b1;   // Enable Output
+        end
+        3'b100: begin
+            io0_oe = 1'b0;                   // Disable Output (Input Mode)
+            data_sample_reg_in0 = io0_inout; // Read FROM the pin
+        end
+        3'b101: begin
+            io0_out_val = data_shift_reg_out0;
+            io0_oe      = 1'b1;   // Enable Output
+        end
+        
+        default: io0_oe = 1'b0;
     endcase
 end
+// 2. The Physical Tri-state Driver (Continuous Assignment)
+// This is the ONLY legal way to drive an inout wire
+assign io0_inout = (io0_oe) ? io0_out_val : 1'bz;
+//============== IO1 SEL MUX ============================
+
+// 1. Control Logic
+always_comb begin
+    // Defaults to prevent latches
+    io1_out_val = 1'b0;
+    io1_oe      = 1'b0;
+    data_sample_reg_in1 = 1'b0;
+    case (io1_sel_in)
+        2'b00: begin
+            io1_oe = 1'b0;        // High-Z
+        end
+        2'b01: begin
+            io1_out_val = addr_shift_reg_out1;
+            io1_oe      = 1'b1;   // Enable Output
+        end
+        2'b10: begin
+            io1_oe = 1'b0;                   // Input Mode
+            data_sample_reg_in1 = io1_inout; // Read pin
+        end
+        2'b11: begin
+            io1_out_val = data_shift_reg_out1;
+            io1_oe      = 1'b1;   // Enable Output
+        end
+        
+        default: io1_oe = 1'b0;
+    endcase
+end
+// 2. Physical Tri-state Driver
+assign io1_inout = (io1_oe) ? io1_out_val : 1'bz;
 //============== IO2 SEL MUX ============================
+
+// 1. Control Logic
 always_comb begin
+    // Defaults to prevent latches
+    io2_out_val = 1'b0;
+    io2_oe      = 1'b0;
+    data_sample_reg_in2 = 1'b0;
     case (io2_sel_in)
-        2'b00: io2_inout = 1'bz;
-        2'b01: io2_inout = addr_shift_reg_out2;
-        2'b10: data_sample_reg_in2 = io2_inout;
-        2'b11: io2_inout = data_shift_reg_out2;
+        2'b00: begin
+            io2_oe = 1'b0;        // High-Z
+        end
+        2'b01: begin
+            io2_out_val = addr_shift_reg_out2;
+            io2_oe      = 1'b1;   // Enable Output
+        end
+        2'b10: begin
+            io2_oe = 1'b0;                   // Input Mode
+            data_sample_reg_in2 = io2_inout; // Read pin
+        end
+        2'b11: begin
+            io2_out_val = data_shift_reg_out2;
+            io2_oe      = 1'b1;   // Enable Output
+        end
+
+        default: io2_oe = 1'b0;
     endcase
 end
+// 2. Physical Tri-state Driver
+assign io2_inout = (io2_oe) ? io2_out_val : 1'bz;
 //============== IO3 SEL MUX ============================
+
+// 1. Control Logic
 always_comb begin
+    // Defaults to prevent latches
+    io3_out_val = 1'b0;
+    io3_oe      = 1'b0;
+    data_sample_reg_in3 = 1'b0;
     case (io3_sel_in)
-        2'b00: io3_inout = 1'bz;
-        2'b01: io3_inout = addr_shift_reg_out3;
-        2'b10: data_sample_reg_in3 = io3_inout;
-        2'b11: io3_inout = data_shift_reg_out3;
+        2'b00: begin
+            io3_oe = 1'b0;        // High-Z
+        end
+        2'b01: begin
+            io3_out_val = addr_shift_reg_out3;
+            io3_oe      = 1'b1;   // Enable Output
+        end
+        2'b10: begin
+            io3_oe = 1'b0;                   // Input Mode
+            data_sample_reg_in3 = io3_inout; // Read pin
+        end
+        2'b11: begin
+            io3_out_val = data_shift_reg_out3;
+            io3_oe      = 1'b1;   // Enable Output
+        end
+
+        default: io3_oe = 1'b0;
     endcase
 end
+// 2. Physical Tri-state Driver
+assign io3_inout = (io3_oe) ? io3_out_val : 1'bz;
 //============== FLASH ADDR CAL ===========================
 always_comb begin
 
@@ -246,13 +351,13 @@ always_comb begin
         addr_of_4B_out = 'b0;
     end
     //-------------------- COUNT LIMIT FOR ADDRESS BITS----------------
-    if (flash_addr_len_in == 'b00 && use_1_io_lines = 'b1) begin
+    if (flash_addr_len_in == 'b00 && use_1_io_lines == 'b1) begin
         addr_count_value = 5'd24;
-    end else if (flash_addr_len_in == 'b01 && use_1_io_lines = 'b1) begin
+    end else if (flash_addr_len_in == 'b01 && use_1_io_lines == 'b1) begin
         addr_count_value = 5'd32;
-    end else if (flash_addr_len_in == 'b00 && use_4_io_lines = 'b1) begin
+    end else if (flash_addr_len_in == 'b00 && use_4_io_lines == 'b1) begin
         addr_count_value = 5'd6;
-    end else if (flash_addr_len_in == 'b01 && use_4_io_lines = 'b1) begin
+    end else if (flash_addr_len_in == 'b01 && use_4_io_lines == 'b1) begin
         addr_count_value = 5'd8;
     end else begin
         addr_count_value = 5'd0;
@@ -281,11 +386,11 @@ always_comb begin
 end
 //======================== DATA BITS AND BEAT LEN COUNT VALUE LOGIC ========================
 always_comb begin
-    if (use_1_io_lines = 'b1) begin
+    if (use_1_io_lines == 'b1) begin
         data_count_value = 5'd32;
-    end else if (use_2_io_lines = 'b1) begin
+    end else if (use_2_io_lines == 'b1) begin
         data_count_value = 5'd16;
-    end else if (use_4_io_lines = 'b1) begin
+    end else if (use_4_io_lines == 'b1) begin
         data_count_value = 5'd8;
     end else begin
         data_count_value = 5'd0;
@@ -335,12 +440,12 @@ qspi_counter burst_counter (
     .start_count    (burst_count_en_in),
     .xip_field_in   (xip_field_in),
     .target_count   (total_beats),
-    .count_done     (burst_comp_out),
+    .count_done     (burst_comp_out)
 );
 
 //======================== SCLK OUTPUT LOGIC ==========================
 always_comb begin
-    if (cpol_in = 1'b1) begin
+    if (cpol_in == 1'b1) begin
         gen_sclk_mux_in = 1'b1;
     end else begin
         gen_sclk_mux_in = 1'b0;
@@ -348,7 +453,7 @@ always_comb begin
 end
 //----------------------------------
 always_comb begin
-    if (gen_sclk_in = 1'b1) begin
+    if (gen_sclk_in == 1'b1) begin
         sclk_out = sclk;
     end else begin
         sclk_out = gen_sclk_mux_in;

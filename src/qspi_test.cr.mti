@@ -1,0 +1,83 @@
+C:/Xce_Training/QSPI/src/sync_fifo.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/sync_fifo.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module sync_fifo
+
+Top level modules:
+	sync_fifo
+
+} {} {}} C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv {2 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module qspi_cmd_shift_reg
+** Warning: C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv(21): (vlog-2697) MSB 30 of part-select into 'shift_reg' is out of bounds.
+
+Top level modules:
+	qspi_cmd_shift_reg
+
+} {} {}} C:/Xce_Training/QSPI/src/qspi_counter.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_counter.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module qspi_counter
+
+Top level modules:
+	qspi_counter
+
+} {} {}} C:/Xce_Training/QSPI/src/qspi_top_tb.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_top_tb.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module qspi_top_tb
+
+Top level modules:
+	qspi_top_tb
+
+} {} {}} C:/Xce_Training/QSPI/src/qspi_shift_reg.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_shift_reg.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module qspi_shift_reg
+
+Top level modules:
+	qspi_shift_reg
+
+} {} {}} C:/Xce_Training/QSPI/src/qspi_cont.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_cont.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling package qspi_cont_sv_unit
+-- Compiling module qspi_cont
+
+Top level modules:
+	qspi_cont
+
+} {} {}} C:/Xce_Training/QSPI/src/slave_datapath.sv {0 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/slave_datapath.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module slave_datapath
+** Error: (vlog-13069) C:/Xce_Training/QSPI/src/slave_datapath.sv(17): near "output": syntax error, unexpected output, expecting ')'.
+
+} {4.0 5.0} {}} C:/Xce_Training/QSPI/src/beat_counter.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/beat_counter.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module beat_counter
+
+Top level modules:
+	beat_counter
+
+} {} {}} C:/Xce_Training/QSPI/src/qspi_datapath.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_datapath.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module qspi_datapath
+
+Top level modules:
+	qspi_datapath
+
+} {} {}} C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module qspi_data_sampling_reg
+
+Top level modules:
+	qspi_data_sampling_reg
+
+} {} {}} C:/Xce_Training/QSPI/src/slave_controller.sv {0 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/slave_controller.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+** Error: C:/Xce_Training/QSPI/src/slave_controller.sv(79): (vlog-2730) Undefined variable: 'xip_field_in'.
+** Error: C:/Xce_Training/QSPI/src/slave_controller.sv(104): (vlog-2730) Undefined variable: 'non_seq_in'.
+
+} {3.0 5.0} {}} C:/Xce_Training/QSPI/src/qspi_clk_gen.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_clk_gen.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module qspi_clk_gen
+
+Top level modules:
+	qspi_clk_gen
+
+} {} {}}
