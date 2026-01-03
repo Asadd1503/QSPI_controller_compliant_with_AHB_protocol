@@ -162,17 +162,17 @@ end
 //================== ADDRESS ERROR GENERATOR  =================
 always_comb begin
     h_resp = 2'b00; //OKAY
-    if (h_sel && !cfg_reg_addr_in_range) begin
+    if (h_sel == 1'b1 && cfg_reg_addr_in_range == 'b0) begin
         h_resp = 2'b10; //SLVERR
     end
-    else if (h_sel && !flash_addr_in_range) begin
+    else if (h_sel == 'b1 && flash_addr_in_range == 'b0 && xip_field == 'b1) begin
         h_resp = 2'b10; //SLVERR
     end
 end
 //=============================================================================
 //================== CONFIGURATION REGISTERS LOGIC =========================
 always_ff @(posedge h_clk or negedge h_rstn) begin
-    hrDATAsel <= 2'b00; // Default to read buffer
+    hrDATAsel <= 3'b000; // Default to read buffer
     tx_data_valid_out <= 'b0;
     if (!h_rstn) begin
         ctrl_reg    <= 32'b0;
@@ -213,6 +213,9 @@ always_ff @(posedge h_clk or negedge h_rstn) begin
         end
         if (set_done_flag_in) begin
             status_reg[0] <= 1'b1; // Set done flag
+        end
+        if (clear_status_reg) begin
+            status_reg <= 32'b0; // Clear done flag after reading status reg
         end
     end
 end
@@ -267,10 +270,6 @@ always_comb begin
         default: h_rdata = 32'd0;
     endcase
 end
-always_ff @(posedge h_clk or negedge h_rstn) begin
-        if (clear_status_reg) begin
-            status_reg <= 32'b0; // Clear done flag after reading status reg
-        end
-    end
+
 
 endmodule

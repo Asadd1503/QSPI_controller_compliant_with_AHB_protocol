@@ -40,7 +40,7 @@ logic use_2_io_lines;
 logic use_4_io_lines;
 logic load_cmd;
 logic load_addr;
-logic [1:0] cmd_sel;
+logic [2:0] cmd_sel;
 logic gen_sclk;
 logic load_cfg_addr_shift_reg;
 logic cfg_addr_shift_reg_en;
@@ -76,7 +76,7 @@ logic tx_data_valid;
 logic start_indrct_mode;
 logic [31:0] addr_reg_value;
 logic sel_shift_addr_reg;
-logic cmd_reg_value;
+logic [7:0] cmd_reg_value;
 logic indrct_wr;
 logic sel_sample_1_line;
 logic set_done_flag;
@@ -101,7 +101,7 @@ slave_datapath u_slave_datapath (
     .h_write            (h_write),
     .h_sel              (h_sel),
     //============= OUTPUTS TO TOP ==================
-    .h_ready            (h_ready),
+    .h_rdata            (h_rdata),
     .h_resp             (h_resp),
     //.h_rdata_out        (h_rdata),
     //============== OUTPUTS TO SLAVE CONTROLLER ==============
@@ -114,7 +114,7 @@ slave_datapath u_slave_datapath (
     .tx_data_valid_out  (tx_data_valid),
     .enter_indrct_mode_out (enter_indrct_mode),
     //============== INPUTS FROM SLAVE CONTROLLER ==============
-    .cfg_reg_wr_en      (cfg_reg_wr_en),
+    //.cfg_reg_wr_en      (cfg_reg_wr_en),
     .load_h_addr        (load_h_addr),
     .load_h_burst       (load_h_burst),
     .wr_rx_reg_in       (wr_rx_reg),
@@ -156,7 +156,7 @@ slave_controller u_slave_controller (
     .enter_indrct_mode_in (enter_indrct_mode),
     .xip_field_in       (xip_field),
     //============== OUTPUTS TO SLAVE DATAPATH ==============
-    .cfg_reg_wr_en      (cfg_reg_wr_en),
+    //.cfg_reg_wr_en      (cfg_reg_wr_en),
     .load_h_addr        (load_h_addr),
     .load_h_burst       (load_h_burst),
     .wr_rx_reg_out      (wr_rx_reg),
@@ -309,12 +309,13 @@ sync_fifo #(
     // INPUT FROM SLAVE CONTROLLER
     .rst_n          (rst_rd_fifo),
     // Write Side
-    .data_in        (data_sample_reg),
-    .write_en       (wr_rd_buffer_en),
+    .wr_en       (wr_rd_buffer_en),
+    .wr_data        (data_sample_reg),
+    
     .full           (rd_buffr_full), 
     // Read Side
-    .data_out       (rd_buffr_data_out),
-    .read_en        (rd_buffr_rd_en),
+    .rd_data       (rd_buffr_data_out),
+    .rd_en        (rd_buffr_rd_en),
     .empty          (rd_fifo_empty)  
 );
 //====================== READ BUFFER ==========================
@@ -325,12 +326,12 @@ sync_fifo #(
     .clk            (h_clk),
     .rst_n          (h_rstn),
     // Write Side
-    .data_in        (wr_buffr_wr_data),
-    .write_en       (wr_buffr_wr_en),
+    .wr_data        (wr_buffr_wr_data),
+    .wr_en          (wr_buffr_wr_en),
     .full           (wr_buffr_full), 
     // Read Side
-    .data_out       (wr_buffr_rd_data),
-    .read_en        (wr_buffr_rd_en),
+    .rd_data        (wr_buffr_rd_data),
+    .rd_en          (wr_buffr_rd_en),
     .empty          (wr_buffr_empty)  
 );
 

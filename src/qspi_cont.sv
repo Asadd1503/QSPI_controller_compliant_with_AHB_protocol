@@ -40,7 +40,7 @@ module qspi_cont(
     //============== OUTPUTS TO SLAVE DATAPATH ==============
     output logic set_done_flag_out,
     //============== INPUTS FROM QSPI DATAPATH =============
-    input logic sclk,
+    input logic sclk_in,
     input logic addr_of_4B_in,
     input logic use_1_io_lines_in,
     input logic use_2_io_lines_in,
@@ -89,7 +89,7 @@ logic rst_n;
 assign rst_n = h_rstn;
 
 //==================================================
-always_ff @(posedge sclk or negedge rst_n) begin
+always_ff @(posedge sclk_in or negedge rst_n) begin
     if (!rst_n) begin
         c_state <= IDLE;
     end else begin

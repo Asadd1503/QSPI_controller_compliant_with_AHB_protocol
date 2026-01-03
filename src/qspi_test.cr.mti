@@ -20,12 +20,12 @@ QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
 Top level modules:
 	qspi_counter
 
-} {} {}} C:/Xce_Training/QSPI/src/qspi_top_tb.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_top_tb.sv
+} {} {}} C:/Xce_Training/QSPI/src/qspi_top.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_top.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
--- Compiling module qspi_top_tb
+-- Compiling module qspi_top
 
 Top level modules:
-	qspi_top_tb
+	qspi_top
 
 } {} {}} C:/Xce_Training/QSPI/src/qspi_shift_reg.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_shift_reg.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
@@ -42,17 +42,12 @@ QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
 Top level modules:
 	qspi_cont
 
-} {} {}} C:/Xce_Training/QSPI/src/slave_datapath.sv {0 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/slave_datapath.sv
+} {} {}} C:/Xce_Training/QSPI/src/slave_datapath.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/slave_datapath.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
 -- Compiling module slave_datapath
-** Error: (vlog-13069) C:/Xce_Training/QSPI/src/slave_datapath.sv(17): near "output": syntax error, unexpected output, expecting ')'.
-
-} {4.0 5.0} {}} C:/Xce_Training/QSPI/src/beat_counter.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/beat_counter.sv
-QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
--- Compiling module beat_counter
 
 Top level modules:
-	beat_counter
+	slave_datapath
 
 } {} {}} C:/Xce_Training/QSPI/src/qspi_datapath.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_datapath.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
@@ -61,19 +56,29 @@ QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
 Top level modules:
 	qspi_datapath
 
-} {} {}} C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
+} {} {}} C:/Xce_Training/QSPI/src/beat_counter.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/beat_counter.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
--- Compiling module qspi_data_sampling_reg
+-- Compiling module beat_counter
 
 Top level modules:
-	qspi_data_sampling_reg
+	beat_counter
 
-} {} {}} C:/Xce_Training/QSPI/src/slave_controller.sv {0 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/slave_controller.sv
+} {} {}} C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
-** Error: C:/Xce_Training/QSPI/src/slave_controller.sv(79): (vlog-2730) Undefined variable: 'xip_field_in'.
-** Error: C:/Xce_Training/QSPI/src/slave_controller.sv(104): (vlog-2730) Undefined variable: 'non_seq_in'.
+-- Compiling module qspi_data_sample_reg
 
-} {3.0 5.0} {}} C:/Xce_Training/QSPI/src/qspi_clk_gen.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_clk_gen.sv
+Top level modules:
+	qspi_data_sample_reg
+
+} {} {}} C:/Xce_Training/QSPI/src/slave_controller.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/slave_controller.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling package slave_controller_sv_unit
+-- Compiling module slave_controller
+
+Top level modules:
+	slave_controller
+
+} {} {}} C:/Xce_Training/QSPI/src/qspi_clk_gen.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_clk_gen.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
 -- Compiling module qspi_clk_gen
 

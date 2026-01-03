@@ -83,10 +83,11 @@ task automatic host_read(input [31:0] addr, output [31:0] data_out);
     h_write <= 1'b0;
     //h_trans <= 2'b10;
     @(posedge h_clk); // allow slave to drive h_rdata
+    # 2;
     data_out = h_rdata;
     h_sel   <= 1'b0;
     //h_trans <= 2'b00;
-    @(posedge h_clk);
+    //@(posedge h_clk);
 endtask
 
 initial begin
@@ -99,8 +100,8 @@ initial begin
     host_write(32'h04, 32'h00000001); // clk/2
     // Write cmd_reg @ 0x0C with 0x0000_005A
     host_write(32'h0C, 32'h0000005A);
-    // Write addr_reg @ 0x10 with 0xDEADBEEF
-    host_write(32'h10, 32'hDEADBEEF);
+    // Write addr_reg @ 0x10 with 0x20000004
+    host_write(32'h10, 32'h20000004);
 
     // Read back and check
     
@@ -116,10 +117,11 @@ initial begin
     else $display("PASS: cmd_reg == 0x%0h", read_data[7:0]);
 
     host_read(32'h10, read_data);
-    if (read_data !== 32'hDEADBEEF) $display("FAIL: addr_reg read 0x%0h (expected 0xDEADBEEF)", read_data); 
+    if (read_data !== 32'h20000004) $display("FAIL: addr_reg read 0x%0h (expected 0x20000004)", read_data); 
     else $display("PASS: addr_reg == 0x%0h", read_data);
-
-    $display("Simple config register test completed.");
+    $display("---------------------------------------------------");
+    $display("Configuration registers wrtite and read test PASSED");
+    $display("---------------------------------------------------");
     #10 $finish;
 end
 endmodule

@@ -1,6 +1,20 @@
 m255
 K4
 z2
+Z0 !s12c _opt
+Z1 !s99 nomlopt
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
 !s11f vlog 2024.1 2024.02, Feb  1 2024
 13
 !s112 1.1
@@ -9,112 +23,125 @@ z2
 !i10f 100
 cModel Technology
 dC:/fyp/ldpc_decoder/ber_curves
+T_opt
+!s110 1767449259
+V3=3b9PnS4RKzo>C6EFYT:1
+04 11 4 work qspi_top_tb fast 0
+=1-0871900f07da-695922ab-1ec-522c
+R1
+!s12f OEM100
+!s12b OEM100
+!s124 OEM100
+o-quiet -auto_acc_if_foreign -work work +acc
+Z2 tCvgOpt 0
+n@_opt
+OL;O;2024.1;79
 vbeat_counter
 2C:/Xce_Training/QSPI/src/beat_counter.sv
-Z0 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
-Z1 !s110 1767444871
+Z3 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+Z4 !s110 1767449251
 !i10b 1
 !s100 >_CfdSFbb]8IDWZQgaH:A3
 I0bjRn5:KLjcX2J0c72m?d0
 S1
-Z2 dC:/Xce_Training/QSPI/src
+Z5 dC:/Xce_Training/QSPI/src
 w1767355941
 8C:/Xce_Training/QSPI/src/beat_counter.sv
 FC:/Xce_Training/QSPI/src/beat_counter.sv
-!i122 235
+!i122 352
 L0 1 50
-Z3 VDg1SIo80bB@j0V0VzS_@n1
-Z4 OL;L;2024.1;79
+Z6 VDg1SIo80bB@j0V0VzS_@n1
+Z7 OL;L;2024.1;79
 r1
 !s85 0
 31
-Z5 !s108 1767444871.000000
+Z8 !s108 1767449251.000000
 !s107 C:/Xce_Training/QSPI/src/beat_counter.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/beat_counter.sv|
 !i113 0
-Z6 o-work work -sv -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
-Z7 tCvgOpt 0
+Z9 o-work work -sv -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R2
 vqspi_clk_gen
 2C:/Xce_Training/QSPI/src/qspi_clk_gen.sv
-R0
-R1
+R3
+R4
 !i10b 1
 !s100 6O3nU49QEcI`D8lMGP?UU1
 IF`>9b^`=Y`=ZYVBeNPNLi1
 S1
-R2
+R5
 w1767436869
 8C:/Xce_Training/QSPI/src/qspi_clk_gen.sv
 FC:/Xce_Training/QSPI/src/qspi_clk_gen.sv
-!i122 236
+!i122 353
 L0 1 32
-R3
-R4
+R6
+R7
 r1
 !s85 0
 31
-R5
+R8
 !s107 C:/Xce_Training/QSPI/src/qspi_clk_gen.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_clk_gen.sv|
 !i113 0
-R6
-R7
+R9
+R2
 vqspi_cmd_shift_reg
 2C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv
-R0
-Z8 !s110 1767444872
+R3
+R4
 !i10b 1
 !s100 EGzO<<S_FQDjmIoF99>Wc1
 IF=]7M>UX<2MdkQG8lWD>[2
 S1
-R2
+R5
 w1766159781
 8C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv
 FC:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv
-!i122 237
+!i122 354
 L0 1 28
-R3
-R4
+R6
+R7
 r1
 !s85 0
 31
-Z9 !s108 1767444872.000000
+R8
 !s107 C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_cmd_shift_reg.sv|
 !i113 0
-R6
-R7
+R9
+R2
 vqspi_cont
 Z10 2C:/Xce_Training/QSPI/src/qspi_cont.sv
-R0
-DXx4 work 17 qspi_cont_sv_unit 0 22 kOS5EKbUBPLZSnlzcYY?]3
-R8
 R3
+DXx4 work 17 qspi_cont_sv_unit 0 22 kOS5EKbUBPLZSnlzcYY?]3
+Z11 !s110 1767449252
+R6
 r1
 !s85 0
 !i10b 1
-!s100 E]he<9XhfQ=WbA`8TlQOo2
-IfBh;X`cG;YjF6L0W;bDJa1
+!s100 1n9KIXkX^7Gna]S6a5Cc^0
+IjGWDH5L^DVDkP3jheS@770
 !s105 qspi_cont_sv_unit
 S1
-R2
-Z11 w1767441656
-Z12 8C:/Xce_Training/QSPI/src/qspi_cont.sv
-Z13 FC:/Xce_Training/QSPI/src/qspi_cont.sv
-!i122 238
+R5
+Z12 w1767446536
+Z13 8C:/Xce_Training/QSPI/src/qspi_cont.sv
+Z14 FC:/Xce_Training/QSPI/src/qspi_cont.sv
+!i122 355
 L0 27 435
-R4
-31
-R9
-Z14 !s107 C:/Xce_Training/QSPI/src/qspi_cont.sv|
-Z15 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_cont.sv|
-!i113 0
-R6
 R7
+31
+Z15 !s108 1767449252.000000
+Z16 !s107 C:/Xce_Training/QSPI/src/qspi_cont.sv|
+Z17 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_cont.sv|
+!i113 0
+R9
+R2
 Xqspi_cont_sv_unit
 R10
-R0
-R8
+R3
+R11
 VkOS5EKbUBPLZSnlzcYY?]3
 r1
 !s85 0
@@ -123,176 +150,201 @@ r1
 IkOS5EKbUBPLZSnlzcYY?]3
 !i103 1
 S1
-R2
-R11
+R5
 R12
 R13
-!i122 238
-Z16 L0 1 0
-R4
-31
-R9
 R14
-R15
-!i113 0
-R6
+!i122 355
+Z18 L0 1 0
 R7
+31
+R15
+R16
+R17
+!i113 0
+R9
+R2
 vqspi_counter
 2C:/Xce_Training/QSPI/src/qspi_counter.sv
-R0
-R8
+R3
+R11
 !i10b 1
 !s100 od@GEOVg`0=G;4T]PH1Q[0
 IbK4WM]VE?K1Qj^@dHk:fj2
 S1
-R2
+R5
 w1767441684
 8C:/Xce_Training/QSPI/src/qspi_counter.sv
 FC:/Xce_Training/QSPI/src/qspi_counter.sv
-!i122 239
+!i122 356
 L0 1 41
-R3
-R4
+R6
+R7
 r1
 !s85 0
 31
-R9
+R15
 !s107 C:/Xce_Training/QSPI/src/qspi_counter.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_counter.sv|
 !i113 0
+R9
+R2
+vqspi_data_sample_reg
+Z19 2C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
+R3
+R11
+!i10b 1
+!s100 0U9NcjcjEHOVf[>ld;ozD2
+IKcL4`KMkKKzKl?G8=>UOg2
+S1
+R5
+w1767445172
+Z20 8C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
+Z21 FC:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
+!i122 357
+Z22 L0 1 45
 R6
 R7
+r1
+!s85 0
+31
+R15
+Z23 !s107 C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv|
+Z24 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv|
+!i113 0
+R9
+R2
 vqspi_data_sampling_reg
-2C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
-R0
-R8
+R19
+R3
+!s110 1767444872
 !i10b 1
 !s100 WGZL3Va]L1aa[PK<0BDZf0
 IG^RhI3W@;D7?;159T^I8z2
 S1
-R2
+R5
 w1767355960
-8C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
-FC:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv
+R20
+R21
 !i122 240
-L0 1 45
-R3
-R4
-r1
-!s85 0
-31
-R9
-!s107 C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv|
-!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_data_sample_reg.sv|
-!i113 0
+R22
 R6
 R7
-vqspi_datapath
-2C:/Xce_Training/QSPI/src/qspi_datapath.sv
-R0
-R8
-!i10b 1
-!s100 e68X1IeI3QgUaQ4786dIl0
-ICS[UiTYG557lS=b5@W4751
-S1
-R2
-w1767443157
-8C:/Xce_Training/QSPI/src/qspi_datapath.sv
-FC:/Xce_Training/QSPI/src/qspi_datapath.sv
-!i122 241
-L0 1 478
-R3
-R4
 r1
 !s85 0
 31
+!s108 1767444872.000000
+R23
+R24
+!i113 0
 R9
+R2
+vqspi_datapath
+2C:/Xce_Training/QSPI/src/qspi_datapath.sv
+R3
+R11
+!i10b 1
+!s100 30K;i8nJcH__Zz;nS]9cG2
+I?oIdI@YlF2HJZ^MP;XA`12
+S1
+R5
+w1767446552
+8C:/Xce_Training/QSPI/src/qspi_datapath.sv
+FC:/Xce_Training/QSPI/src/qspi_datapath.sv
+!i122 358
+L0 1 479
+R6
+R7
+r1
+!s85 0
+31
+R15
 !s107 C:/Xce_Training/QSPI/src/qspi_datapath.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_datapath.sv|
 !i113 0
-R6
-R7
+R9
+R2
 vqspi_shift_reg
 2C:/Xce_Training/QSPI/src/qspi_shift_reg.sv
-R0
-Z17 !s110 1767444873
+R3
+Z25 !s110 1767449253
 !i10b 1
 !s100 eIYNgXgSEYJoH0YSH=nBM1
 IP?7X7h=C_BWG?an>S`ME81
 S1
-R2
+R5
 w1767443272
 8C:/Xce_Training/QSPI/src/qspi_shift_reg.sv
 FC:/Xce_Training/QSPI/src/qspi_shift_reg.sv
-!i122 242
+!i122 359
 L0 1 68
-R3
-R4
+R6
+R7
 r1
 !s85 0
 31
-Z18 !s108 1767444873.000000
+R15
 !s107 C:/Xce_Training/QSPI/src/qspi_shift_reg.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_shift_reg.sv|
 !i113 0
-R6
-R7
+R9
+R2
 vqspi_top
 2C:/Xce_Training/QSPI/src/qspi_top.sv
-R0
-R17
+R3
+R25
 !i10b 1
-!s100 :mka<dYz[gF_VcGVcT>UA2
-ICFekO?A><Ub`_I9IdXgh_3
+!s100 BIARloLzKkoX^nNIXEzjB3
+Ia:BgNC3CC1WHCX?WCFI;L2
 S1
-R2
-w1767444287
+R5
+w1767446702
 8C:/Xce_Training/QSPI/src/qspi_top.sv
 FC:/Xce_Training/QSPI/src/qspi_top.sv
-!i122 243
-L0 1 337
-R3
-R4
+!i122 360
+L0 1 338
+R6
+R7
 r1
 !s85 0
 31
-R18
+Z26 !s108 1767449253.000000
 !s107 C:/Xce_Training/QSPI/src/qspi_top.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_top.sv|
 !i113 0
-R6
-R7
+R9
+R2
 vqspi_top_tb
 2C:/Xce_Training/QSPI/src/qspi_top_tb.sv
-R0
-R17
+R3
+R25
 !i10b 1
-!s100 c9TXmS4Gg<>UAB@Se@4g:2
-IC2LWmLE:kFf:ahod;j5ef0
+!s100 PDT?eZZeI>gc=Z8MLNHI93
+IihLYfFX^=:IB2T_bY9iBf0
 S1
-R2
-w1767444059
+R5
+w1767449206
 8C:/Xce_Training/QSPI/src/qspi_top_tb.sv
 FC:/Xce_Training/QSPI/src/qspi_top_tb.sv
-!i122 244
-L0 1 125
-R3
-R4
+!i122 361
+L0 1 126
+R6
+R7
 r1
 !s85 0
 31
-R18
+R26
 !s107 C:/Xce_Training/QSPI/src/qspi_top_tb.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/qspi_top_tb.sv|
 !i113 0
-R6
-R7
+R9
+R2
 vslave_controller
-Z19 2C:/Xce_Training/QSPI/src/slave_controller.sv
-R0
-DXx4 work 24 slave_controller_sv_unit 0 22 R5L08zLB>^055]ZDGLeY?2
-R17
+Z27 2C:/Xce_Training/QSPI/src/slave_controller.sv
 R3
+DXx4 work 24 slave_controller_sv_unit 0 22 R5L08zLB>^055]ZDGLeY?2
+R25
+R6
 r1
 !s85 0
 !i10b 1
@@ -300,24 +352,24 @@ r1
 IoHk83o1=@DFAR9<gh_W>L3
 !s105 slave_controller_sv_unit
 S1
-R2
-Z20 w1767444231
-Z21 8C:/Xce_Training/QSPI/src/slave_controller.sv
-Z22 FC:/Xce_Training/QSPI/src/slave_controller.sv
-!i122 245
+R5
+Z28 w1767444231
+Z29 8C:/Xce_Training/QSPI/src/slave_controller.sv
+Z30 FC:/Xce_Training/QSPI/src/slave_controller.sv
+!i122 362
 L0 15 179
-R4
-31
-R18
-Z23 !s107 C:/Xce_Training/QSPI/src/slave_controller.sv|
-Z24 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/slave_controller.sv|
-!i113 0
-R6
 R7
+31
+R26
+Z31 !s107 C:/Xce_Training/QSPI/src/slave_controller.sv|
+Z32 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/slave_controller.sv|
+!i113 0
+R9
+R2
 Xslave_controller_sv_unit
-R19
-R0
-R17
+R27
+R3
+R25
 VR5L08zLB>^055]ZDGLeY?2
 r1
 !s85 0
@@ -326,67 +378,67 @@ r1
 IR5L08zLB>^055]ZDGLeY?2
 !i103 1
 S1
-R2
-R20
-R21
-R22
-!i122 245
-R16
-R4
-31
+R5
+R28
+R29
+R30
+!i122 362
 R18
-R23
-R24
-!i113 0
-R6
 R7
+31
+R26
+R31
+R32
+!i113 0
+R9
+R2
 vslave_datapath
 2C:/Xce_Training/QSPI/src/slave_datapath.sv
-R0
-R17
+R3
+R25
 !i10b 1
-!s100 lK[JoDMAHPbcYFeR07?_z1
-IMLOdUaLFa3=m8hUUK:mC61
+!s100 7dmAC:1FPLK>ON1DeiAC61
+IOgnh;begR1BXGaff`43a[0
 S1
-R2
-w1767444866
+R5
+w1767447835
 8C:/Xce_Training/QSPI/src/slave_datapath.sv
 FC:/Xce_Training/QSPI/src/slave_datapath.sv
-!i122 246
-L0 1 276
-R3
-R4
+!i122 363
+L0 1 275
+R6
+R7
 r1
 !s85 0
 31
-R18
+R26
 !s107 C:/Xce_Training/QSPI/src/slave_datapath.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/slave_datapath.sv|
 !i113 0
-R6
-R7
+R9
+R2
 vsync_fifo
 2C:/Xce_Training/QSPI/src/sync_fifo.sv
-R0
-!s110 1767444874
+R3
+R25
 !i10b 1
 !s100 7`XP5FAa]]n:4n3EQ]K7J0
 I]bW2Pe;f4f43TeC;4G:Li0
 S1
-R2
+R5
 w1767443617
 8C:/Xce_Training/QSPI/src/sync_fifo.sv
 FC:/Xce_Training/QSPI/src/sync_fifo.sv
-!i122 247
+!i122 364
 L0 1 81
-R3
-R4
+R6
+R7
 r1
 !s85 0
 31
-!s108 1767444874.000000
+R26
 !s107 C:/Xce_Training/QSPI/src/sync_fifo.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|C:/Xce_Training/QSPI/src/sync_fifo.sv|
 !i113 0
-R6
-R7
+R9
+R2

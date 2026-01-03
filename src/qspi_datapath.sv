@@ -11,8 +11,8 @@ module qspi_datapath (
     
     //=============== INPUTS FROM SLAVE DATAPATH ==============
     input logic [7:0] clk_div_in,
-    input logic flash_addr_len_in,
-    input logic no_io_lines_use_in,
+    input logic [1:0] flash_addr_len_in,
+    input logic [1:0] no_io_lines_use_in,
     input logic cpol_in,
     input logic [31:0] haddr_in,
     input logic [2:0] hburst_reg_in,
@@ -28,12 +28,13 @@ module qspi_datapath (
     output logic use_4_io_lines_out,
     output logic count_done_out,
     output logic setup_cmd_sent_out,
+    output logic burst_comp_out,
     //============= INPUTS FROM QSPI CONT ================
     input logic load_cmd_in,
     input logic load_addr_in,
     input logic load_cfg_addr_shift_reg_in,
     input logic gen_sclk_in,
-    input logic [1:0] cmd_sel_in,
+    input logic [2:0] cmd_sel_in,
     input logic cmd_shift_reg_en_in,
     //input logic load_cfg_addr_shift_reg_in,
     input logic cfg_addr_shift_reg_en_in,
@@ -434,12 +435,12 @@ qspi_counter shifted_bits_counter (
     .count_done     (count_done_out)
 );
 //======================= BURST COUNTER ==========================
-qspi_counter burst_counter (
+beat_counter burst_counter (
     .clk            (sclk),
     .rst_n          (h_rstn),
     .start_count    (burst_count_en_in),
-    .xip_field_in   (xip_field_in),
     .target_count   (total_beats),
+    .xip_field_in   (xip_field_in),
     .count_done     (burst_comp_out)
 );
 
