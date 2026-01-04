@@ -306,11 +306,12 @@ qspi_cont u_qspi_cont (
 
 );
 //====================== READ BUFFER ==========================
-sync_fifo #(
+rd_sync_fifo #(
     .DATA_WIDTH (32),
     .FIFO_DEPTH (16)
 ) read_buffer (
-    .clk            (h_clk),
+    .rd_clk            (h_clk),
+    .wr_clk            (sclk_cont),
     // INPUT FROM SLAVE CONTROLLER
     .rst_n          (rst_rd_fifo),
     // Write Side
@@ -323,18 +324,19 @@ sync_fifo #(
     .rd_en        (rd_buffr_rd_en),
     .empty          (rd_fifo_empty)  
 );
-//====================== READ BUFFER ==========================
-sync_fifo #(
+//====================== WRITE BUFFER ==========================
+wr_sync_fifo #(
     .DATA_WIDTH (32),
     .FIFO_DEPTH (64)        // 256/4 = 64 words
 ) write_buffer (
-    .clk            (h_clk),
     .rst_n          (h_rstn),
     // Write Side
     .wr_data        (wr_buffr_wr_data),
     .wr_en          (wr_buffr_wr_en),
     .full           (wr_buffr_full), 
+    .wr_clk            (h_clk),
     // Read Side
+    .rd_clk           (sclk_cont),
     .rd_data        (wr_buffr_rd_data),
     .rd_en          (wr_buffr_rd_en),
     .empty          (wr_buffr_empty)  

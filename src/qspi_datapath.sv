@@ -88,6 +88,7 @@ logic data_sample_reg_in1;
 logic data_sample_reg_in2;
 logic data_sample_reg_in3;
 logic [3:0] total_beats;
+logic addr_of_4B;
 
 // Internal signals to control the pin
 logic io0_out_val; // The value we WANT to send out
@@ -111,7 +112,7 @@ assign use_2_io_lines_out = use_2_io_lines;
 assign use_4_io_lines_out = use_4_io_lines;
 assign sclk_out_cont = sclk;                        // SCLK for QSPI CONTROLLER
 assign data_sample_reg_out = data_sample_reg_value; // DATA TO READ BUFFER
-
+assign addr_of_4B_out = addr_of_4B;                // ADDR OF 4 BYTES FLAG
 //=============== CLK  GENERATOR INSTANCE ==================
 qspi_clk_gen u_qspi_clk_gen (
     .h_clk      (h_clk),
@@ -159,11 +160,12 @@ qspi_cmd_shift_reg cfg_addr_shift_reg (
     .mosi          (cfg_addr_shift_reg_out)
 );
 //================ ADDRESS SHIFT REGISTER ==========================
-qspi_shift_reg addr_shift_reg (
+qspi_addr_shift_reg addr_shift_reg (
     .clk         (sclk),
     .rst_n       (h_rstn),
     .data_in     (shift_addr_reg_in),
     .load        (load_addr_in),
+    .addrOF4B_in (addr_of_4B),
     .shift_en    (addr_shift_reg_en_in),
     .use_1_io_lines_in (use_1_io_lines),
     .use_2_io_lines_in (use_2_io_lines),
@@ -346,10 +348,10 @@ assign io3_inout = (io3_oe) ? io3_out_val : 1'bz;
 always_comb begin
 
     if (flash_addr_len_in == 2'b01) begin
-        addr_of_4B_out = 'b1;
+        addr_of_4B = 'b1;
 
     end else begin
-        addr_of_4B_out = 'b0;
+        addr_of_4B = 'b0;
     end
     //-------------------- COUNT LIMIT FOR ADDRESS BITS----------------
     if (flash_addr_len_in == 'b00 && use_1_io_lines == 'b1) begin

@@ -42,19 +42,19 @@ QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
 Top level modules:
 	qspi_cont
 
+} {} {}} C:/Xce_Training/QSPI/src/wr_sync_fifio.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/wr_sync_fifio.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module wr_sync_fifo
+
+Top level modules:
+	wr_sync_fifo
+
 } {} {}} C:/Xce_Training/QSPI/src/slave_datapath.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/slave_datapath.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
 -- Compiling module slave_datapath
 
 Top level modules:
 	slave_datapath
-
-} {} {}} C:/Xce_Training/QSPI/src/qspi_datapath.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/qspi_datapath.sv
-QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
--- Compiling module qspi_datapath
-
-Top level modules:
-	qspi_datapath
 
 } {} {}} C:/Xce_Training/QSPI/src/beat_counter.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/beat_counter.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
@@ -69,6 +69,13 @@ QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
 
 Top level modules:
 	qspi_data_sample_reg
+
+} {} {}} C:/Xce_Training/QSPI/src/rd_sync_fifo.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/rd_sync_fifo.sv
+QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024
+-- Compiling module rd_sync_fifo
+
+Top level modules:
+	rd_sync_fifo
 
 } {} {}} C:/Xce_Training/QSPI/src/slave_controller.sv {1 {vlog -work work -vopt -sv -stats=none C:/Xce_Training/QSPI/src/slave_controller.sv
 QuestaSim-64 vlog 2024.1 Compiler 2024.02 Feb  1 2024

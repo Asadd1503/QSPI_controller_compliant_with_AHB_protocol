@@ -23,7 +23,7 @@ module qspi_counter (
                 active    <= 'b0;
             end
             else if (start_count) begin
-                if (count_reg == (target_count - 5'd1)) begin
+                if (count_reg == (target_count - 5'd2)) begin
                     count_done <= 1'b1;
                     active     <= 1'b1;
                 end else begin

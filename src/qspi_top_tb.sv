@@ -25,6 +25,7 @@ logic        send_data;
 
 logic [3:0] io_out = 4'b0000; 
 logic       tb_io_en = 1'b0;  // 1 = Testbench drives pins, 0 = Testbench floats (DUT drives)
+logic [31:0] flash_data [0:3] = '{32'haaaa_aaaa, 32'hcccc_cccc, 32'h3333_3333, 32'hcccc_cccc};
 
 assign io0 = tb_io_en ? io_out[0] : 1'bz;
 assign io1 = tb_io_en ? io_out[1] : 1'bz;
@@ -112,42 +113,50 @@ task automatic xip_mode_test(input [31:0] addr);
     @(posedge h_clk);
     h_trans <= 2'b11; //seq
     
-    $display("TB: Data phase detected, driving IO lines.");
+    $display(" Data phase detected, driving IO lines.");
     wait(send_data == 1'b1); 
     tb_io_en = 1'b1; 
     for (int i=0; i<8; i++) begin
+        io_out = flash_data[0][3:0];
         @(posedge sclk);
-        io_out = 4'b1010; 
+         
     end
-    @(posedge sclk);
+    #3;
+    tb_io_en = 1'b0;
+    wait (send_data == 1'b1);
+    tb_io_en = 1'b1;
+    for (int i=0; i<8; i++) begin
+        io_out = flash_data[1][3:0];
+        @(posedge sclk);
+         
+    end
+    #3;
     tb_io_en = 1'b0;
     #2;
     wait (send_data == 1'b1);
     tb_io_en = 1'b1;
     for (int i=0; i<8; i++) begin
+        io_out = flash_data[2][3:0];
         @(posedge sclk);
-        io_out = 4'b1100; 
+         
     end
-    @(posedge sclk);
+    #3;
     tb_io_en = 1'b0;
-    #2;
     wait (send_data == 1'b1);
     tb_io_en = 1'b1;
     for (int i=0; i<8; i++) begin
+        io_out = flash_data[3][3:0];
         @(posedge sclk);
-        io_out = 4'b0011; 
+         
     end
-    @(posedge sclk);
+    #3;
     tb_io_en = 1'b0;
+    wait (h_ready == 1'b0);
+    wait (h_ready == 1'b1);
     #2;
-    wait (send_data == 1'b1);
-    tb_io_en = 1'b1;
-    for (int i=0; i<8; i++) begin
-        @(posedge sclk);
-        io_out = 4'b0011; 
+    for (int i=0; i < 4; i++) begin
+        $display("FIFO[%0d] = %h , Expected--> FIFO[%0d] = %h", i, uut.read_buffer.mem[i], i, flash_data[i]);
     end
-    @(posedge sclk);
-    tb_io_en = 1'b0;
 endtask
 
 initial begin
@@ -182,8 +191,10 @@ initial begin
     $display("--------------------------------------------------------");
     $display("Configuration registers Write and Readback Test Complete");
     $display("--------------------------------------------------------");
-    xip_mode_test(32'h20000000);
+    xip_mode_test(32'h20000F00);
+    $display("----------------------");
     $display("XIP MODE TEST COMPLETE");
+    $display("----------------------");
 
 
     #10 $finish;
