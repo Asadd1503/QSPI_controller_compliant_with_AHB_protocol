@@ -20,7 +20,8 @@ module qspi_top (
     inout logic         io3,
     //============== TEST sIGNALS ==============
     output logic        send_data,
-    output logic        QSPIbusy
+    output logic        QSPIbusy,
+    output logic        startSAMPLING
 );
 
 logic cfg_reg_wr;
@@ -91,6 +92,9 @@ logic load_shift_data_en;
 logic data_shift_reg_en;
 logic [7:0] indrct_bytes_num;
 logic wr_rx_reg;
+logic sent_setup_cmd;
+logic clearINDIRECTbit;
+
 //assign sclk_out = sclk;
 assign QSPIbusy = qspi_busy;
 
@@ -134,6 +138,8 @@ slave_datapath u_slave_datapath (
     .indrct_bytes_num_out (indrct_bytes_num),
     //================= INPUTS FROM QSPI CONTROLLER ==============
     .set_done_flag_in   (set_done_flag),
+    .qspi_busy_in      (qspi_busy),
+    .clearINDIRECTbit_i (clearINDIRECTbit),
     //=============== OUTPUTS TO QSPI CONTROLLER =================
     .cpha_out           (cpha),
     .indrct_wr_out      (indrct_wr),
@@ -248,6 +254,7 @@ qspi_cont u_qspi_cont (
     //============= OUTPUTS TO TOP =================
     .cs_n_out                 (cs_n),
     .send_data_out           (send_data),
+    .startSAMPLING_o         (startSAMPLING),
      //=============INPUTS FROM AHB SLAVE CONT===================
     .start_new_xip_seq      (start_new_xip_seq),
     .break_seq_in           (break_seq),
@@ -258,6 +265,7 @@ qspi_cont u_qspi_cont (
     .xip_field_in           (xip_field),
     //============== OUTPUTS TO SLAVE DATAPATH ==============
     .set_done_flag_out      (set_done_flag),
+    .clearINDIRECTbit_o     (clearINDIRECTbit),
     //============= OUTPUTS TO AHB SLAVE CONT===================
     .qspi_busy_out          (qspi_busy),
    

@@ -26,6 +26,7 @@ module slave_datapath (
     input logic load_h_addr,
     input logic load_h_burst,
     input logic wr_rx_reg_in,
+    input logic qspi_busy_in,
     //============== OUTPUT TO QSPI DATAPATH ==============
     output logic [7:0] clk_div_out,
     output logic [1:0] flash_addr_len_out,
@@ -38,6 +39,7 @@ module slave_datapath (
     output logic [7:0] indrct_bytes_num_out,
     //============== INPUTS FROM QSPI CONT ================
     input logic set_done_flag_in,
+    input logic clearINDIRECTbit_i,
     //=============== OUTPUTS TO QSPI CONTROLLER =================
     output logic cpha_out,
     output logic indrct_wr_out,
@@ -50,7 +52,7 @@ module slave_datapath (
 );
 //=================== CFG REGISTERS ===========================
 logic [31:0] ctrl_reg;      // 0x00
-logic [31:0] clk_div_reg;       // 0x04
+logic [31:0] clk_div_reg;   // 0x04
 logic [31:0] status_reg;    // 0x08
 logic [31:0] cmd_reg;       // 0x0C
 logic [31:0] addr_reg;      // 0x10
@@ -95,7 +97,7 @@ assign indrct_bytes_num_out = ctrl_reg[15:8]; // Number of bytes to transfer in 
 //=============================================================
 //=================== INDIRECT MODE LOGIC ==================
 always_comb begin
-    if (indrct_start && !xip_field) begin
+    if (indrct_start && !xip_field && !qspi_busy_in) begin
         enter_indrct_mode_out = 'b1;
     end else begin
         enter_indrct_mode_out = 'b0;
@@ -218,6 +220,9 @@ always_ff @(posedge h_clk or negedge h_rstn) begin
         end
         if (set_done_flag_in) begin
             status_reg[0] <= 1'b1; // Set done flag
+        end
+        if (clearINDIRECTbit_i) begin
+            ctrl_reg[7] <= 1'b0; // Clear INDIRECT bit
         end
         if (clear_status_reg) begin
             status_reg <= 32'b0; // Clear done flag after reading status reg

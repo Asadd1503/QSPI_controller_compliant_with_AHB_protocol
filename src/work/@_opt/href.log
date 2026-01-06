@@ -1,3 +1,0 @@
-BEGIN 1:rd_sync_fifo:fast:work
-    mem :  1:qspi_top_tb:fast:work
-END 

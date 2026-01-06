@@ -30,6 +30,7 @@ module qspi_cont(
     //============= OUTPUTS TO TOP =================
     output logic cs_n_out,
     output logic send_data_out,
+    output logic startSAMPLING_o,
     //=============INPUTS FROM AHB SLAVE CONT===================
     input logic start_new_xip_seq,
     input logic break_seq_in,
@@ -40,6 +41,7 @@ module qspi_cont(
     input logic xip_field_in,
     //============== OUTPUTS TO SLAVE DATAPATH ==============
     output logic set_done_flag_out,
+    output logic clearINDIRECTbit_o,
     //============== INPUTS FROM QSPI DATAPATH =============
     input logic sclk_in,
     input logic addr_of_4B_in,
@@ -263,6 +265,8 @@ always_comb begin
     load_shift_data_en_out = 'b0;
     data_Shift_reg_en_out = 'b0;
     send_data_out = 'b0;
+    clearINDIRECTbit_o = 'b0;
+    startSAMPLING_o    = 'b0;
     case (c_state)
         IDLE: begin
             qspi_busy_out = 'b0;
@@ -351,7 +355,11 @@ always_comb begin
         DATA_SAMPLE: begin
             cs_n_out = 'b0;
             gen_sclk_out = 'b1;
+            if (burst_comp_in) begin
+                data_sample_reg_en_out = 'b0;
+            end else begin
             data_sample_reg_en_out = 'b1;
+            end
             io0_sel_out = 'b100;
             io1_sel_out = 'b10;
             io2_sel_out = 'b10;
@@ -414,6 +422,8 @@ always_comb begin
             io3_sel_out = 'b01;
             sel_sample_1_line_out = 'b1;
             data_sample_reg_en_out = 'b1;
+            send_data_out = 'b1;
+            clearINDIRECTbit_o = 'b1;
         end
         COUNT_STATUS: begin
             cs_n_out = 'b0;
@@ -427,11 +437,13 @@ always_comb begin
             io3_sel_out = 'b01;
             sel_sample_1_line_out = 'b1;
             data_sample_reg_en_out = 'b1;
+            send_data_out = 'b1;
         end
         SET_DONE_FLAG: begin
             cs_n_out = 'b1;
             qspi_busy_out = 'b1;
             set_done_flag_out = 'b1;
+            clearINDIRECTbit_o = 'b1;
         end
         WR_BUFFR_READ: begin
             wr_buffr_rd_en_out = 'b1;
@@ -458,6 +470,8 @@ always_comb begin
             io1_sel_out = 'b11;
             io2_sel_out = 'b11;
             io3_sel_out = 'b11;
+            startSAMPLING_o = 'b1;// simulation signal
+
         end
     endcase
 end

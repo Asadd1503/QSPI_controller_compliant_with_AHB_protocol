@@ -23,7 +23,7 @@ module beat_counter (
             end
             else if (start_count) begin
                 if (!xip_field_in) begin
-                    if (count_reg == target_count + 'd1) begin
+                    if (count_reg == target_count) begin
                         count_done <= 1'b1;
                         active     <= 1'b1;
                     end else begin
@@ -31,7 +31,7 @@ module beat_counter (
                         count_done <= 1'b0;
                     end
                 end else begin
-                    if (count_reg == target_count) begin
+                    if (count_reg == target_count - 'd1) begin
                         count_done <= 1'b1;
                         active     <= 1'b1;
                     end else begin

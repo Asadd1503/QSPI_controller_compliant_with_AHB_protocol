@@ -135,6 +135,9 @@ always_comb begin
         READ_RD_BUFFER: begin
             n_state = WRITE_RX_REG;
         end
+        WRITE_RX_REG: begin
+            n_state = IDLE;
+        end
             
 
         
@@ -175,6 +178,7 @@ always_comb begin
         end
         INDIRECT_MODE: begin
             start_indrct_mode_out = 'b1;
+            rst_rd_fifo_out = 'b1;
         end
         READ_RD_BUFFER: begin
             rd_buffr_rd_en_out = 'b1;
