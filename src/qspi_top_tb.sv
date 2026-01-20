@@ -233,7 +233,7 @@ task automatic indirectMODE_flashWRITE();
     end
     wait(busy == 1'b0);
     wait(h_ready == 1'b1);
-    $display("--------- Displaying DATA sent and DATA sampled at QSPI outputs ------------");
+    $display("--------- Displaying DATA sent and DATA sampled at QSPI outputs ------------")
     for (int i=0; i<2; i++) begin
         $display("beat %0d = %h Expected ---> %h", i, SAMPLEreg[i], data2WRITEbuffer[i]);
     end
