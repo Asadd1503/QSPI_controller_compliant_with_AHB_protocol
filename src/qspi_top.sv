@@ -21,79 +21,80 @@ module qspi_top (
     //============== TEST sIGNALS ==============
     output logic        send_data,
     output logic        QSPIbusy,
-    output logic        startSAMPLING
+    output logic        startSAMPLING,
+    output logic        oneLINEcorrect
 );
 
-logic cfg_reg_wr;
+logic           cfg_reg_wr;
 //logic enter_xip_mode;
 //logic cfg_reg_wr_en;
-logic load_h_addr;
-logic load_h_burst;
+logic           load_h_addr;
+logic           load_h_burst;
 //logic clk_div;
-logic qspi_busy;
-logic start_new_xip_seq;
-logic enter_xip_mode;
-logic [7:0] clk_div;
-logic sclk_cont;
-logic [1:0] flash_addr_len;
-logic [1:0] no_io_lines_use;
-logic cpol, cpha;
-logic addr_of_4B;
-logic use_1_io_lines;
-logic use_2_io_lines;
-logic use_4_io_lines;
-logic load_cmd;
-logic load_addr;
-logic [2:0] cmd_sel;
-logic gen_sclk;
-logic load_cfg_addr_shift_reg;
-logic cfg_addr_shift_reg_en;
-logic cmd_shift_reg_en;
-logic [2:0] io0_sel;
-logic [1:0] io1_sel;
-logic [1:0] io2_sel;
-logic [1:0] io3_sel;
-logic start_count;
-logic [1:0] set_count_lim;
-logic count_done;
-logic [31:0] haddr;
-logic [2:0] hburst;
-logic addr_shift_reg_en;
-logic data_sample_reg_en;
-logic [31:0] data_sample_reg;
-logic wr_rd_buffer_en;
-logic rst_buffr_n;
-logic rd_buffr_full;
-logic burst_count_en;
-logic burst_comp;
-logic rst_rd_fifo;
-logic non_seq, seq, idle, busy;
-logic rd_fifo_empty;
-logic rd_buffr_rd_en;
-logic break_seq;
-logic [31:0] rd_buffr_data_out;
-logic [31:0] wr_buffr_wr_data;
-logic wr_buffr_wr_en;
-logic wr_buffr_full;
-logic enter_indrct_mode;
-logic tx_data_valid;
-logic start_indrct_mode;
-logic [31:0] addr_reg_value;
-logic sel_shift_addr_reg;
-logic [7:0] cmd_reg_value;
-logic indrct_wr;
-logic sel_sample_1_line;
-logic set_done_flag;
-logic set_setup_flag;
-logic wr_buffr_empty;
-logic wr_buffr_rd_en;
-logic [31:0] wr_buffr_rd_data;
-logic load_shift_data_en;
-logic data_shift_reg_en;
-logic [7:0] indrct_bytes_num;
-logic wr_rx_reg;
-logic sent_setup_cmd;
-logic clearINDIRECTbit;
+logic           qspi_busy;
+logic           start_new_xip_seq;
+logic           enter_xip_mode;
+logic [7:0]     clk_div;
+logic           sclk_cont;
+logic [1:0]     flash_addr_len;
+logic [1:0]     no_io_lines_use;
+logic           cpol, cpha;
+logic           addr_of_4B;
+logic           use_1_io_lines;
+logic           use_2_io_lines;
+logic           use_4_io_lines;
+logic           load_cmd;
+logic           load_addr;
+logic [2:0]     cmd_sel;
+logic           gen_sclk;
+logic           load_cfg_addr_shift_reg;
+logic           cfg_addr_shift_reg_en;
+logic           cmd_shift_reg_en;
+logic [2:0]     io0_sel;
+logic [1:0]     io1_sel;
+logic [1:0]     io2_sel;
+logic [1:0]     io3_sel;
+logic           start_count;
+logic [1:0]     set_count_lim;
+logic           count_done;
+logic [31:0]    haddr;
+logic [2:0]     hburst;
+logic           addr_shift_reg_en;
+logic           data_sample_reg_en;
+logic [31:0]    data_sample_reg;
+logic           wr_rd_buffer_en;
+logic           rst_buffr_n;
+logic           rd_buffr_full;
+logic           burst_count_en;
+logic           burst_comp;
+logic           rst_rd_fifo;
+logic           non_seq, seq, idle, busy;
+logic           rd_fifo_empty;
+logic           rd_buffr_rd_en;
+logic           break_seq;
+logic [31:0]    rd_buffr_data_out;
+logic [31:0]    wr_buffr_wr_data;
+logic           wr_buffr_wr_en;
+logic           wr_buffr_full;
+logic           enter_indrct_mode;
+logic           tx_data_valid;
+logic           start_indrct_mode;
+logic [31:0]    addr_reg_value;
+logic           sel_shift_addr_reg;
+logic [7:0]     cmd_reg_value;
+logic           indrct_wr;
+logic           sel_sample_1_line;
+logic           set_done_flag;
+logic           set_setup_flag;
+logic           wr_buffr_empty;
+logic           wr_buffr_rd_en;
+logic [31:0]    wr_buffr_rd_data;
+logic           load_shift_data_en;
+logic           data_shift_reg_en;
+logic [7:0]     indrct_bytes_num;
+logic           wr_rx_reg;
+logic           sent_setup_cmd;
+logic           clearINDIRECTbit;
 
 //assign sclk_out = sclk;
 assign QSPIbusy = qspi_busy;
@@ -114,71 +115,71 @@ slave_datapath u_slave_datapath (
     //.h_rdata_out        (h_rdata),
     //============== OUTPUTS TO SLAVE CONTROLLER ==============
     //.cfg_reg_wr         (cfg_reg_wr),
-    .enter_xip_mode     (enter_xip_mode),
-    .non_Seq_out        (non_seq),
-    .seq_out            (seq),
-    .idle_out           (idle),
-    .busy_out           (busy),
-    .tx_data_valid_out  (tx_data_valid),
-    .enter_indrct_mode_out (enter_indrct_mode),
+    .enter_xip_mode         (enter_xip_mode),
+    .non_Seq_out            (non_seq),
+    .seq_out                (seq),
+    .idle_out               (idle),
+    .busy_out               (busy),
+    .tx_data_valid_out      (tx_data_valid),
+    .enter_indrct_mode_out  (enter_indrct_mode),
     //============== INPUTS FROM SLAVE CONTROLLER ==============
     //.cfg_reg_wr_en      (cfg_reg_wr_en),
-    .load_h_addr        (load_h_addr),
-    .load_h_burst       (load_h_burst),
-    .wr_rx_reg_in       (wr_rx_reg),
+    .load_h_addr            (load_h_addr),
+    .load_h_burst           (load_h_burst),
+    .wr_rx_reg_in           (wr_rx_reg),
     //============== OUTPUTS TO QSPI DATAPATH ==============
-    .clk_div_out        (clk_div),
-    .flash_addr_len_out (flash_addr_len),
-    .no_io_lines_use_out (no_io_lines_use),
-    .cpol_out            (cpol),
+    .clk_div_out          (clk_div),
+    .flash_addr_len_out   (flash_addr_len),
+    .no_io_lines_use_out  (no_io_lines_use),
+    .cpol_out             (cpol),
     .haddr_out            (haddr),
-    .hburst_reg_out      (hburst),
-    .addr_reg_out       (addr_reg_value),
-    .cmd_reg_out        (cmd_reg_value),
+    .hburst_reg_out       (hburst),
+    .addr_reg_out         (addr_reg_value),
+    .cmd_reg_out          (cmd_reg_value),
     .indrct_bytes_num_out (indrct_bytes_num),
     //================= INPUTS FROM QSPI CONTROLLER ==============
-    .set_done_flag_in   (set_done_flag),
-    .qspi_busy_in      (qspi_busy),
-    .clearINDIRECTbit_i (clearINDIRECTbit),
+    .set_done_flag_in     (set_done_flag),
+    .qspi_busy_in         (qspi_busy),
+    .clearINDIRECTbit_i   (clearINDIRECTbit),
     //=============== OUTPUTS TO QSPI CONTROLLER =================
-    .cpha_out           (cpha),
-    .indrct_wr_out      (indrct_wr),
-    .xip_field_out      (xip_field),
+    .cpha_out             (cpha),
+    .indrct_wr_out        (indrct_wr),
+    .xip_field_out        (xip_field),
     //================ INPUTS FROM READ BUFFER =================
-    .rd_buffr_data_in   (rd_buffr_data_out),
+    .rd_buffr_data_in     (rd_buffr_data_out),
     //==================== OUTPUTS TO WRITE BUFFER ========================
     .wr_buffr_wr_data_out (wr_buffr_wr_data)
 );
 slave_controller u_slave_controller (
     //============= INPUTS FROM TOP =================
-    .h_clk              (h_clk),
-    .h_rstn             (h_rstn),
+    .h_clk                  (h_clk),
+    .h_rstn                 (h_rstn),
     //============= OUTPUTS TO TOP =================
-    .h_ready            (h_ready),
+    .h_ready                (h_ready),
     //============== INPUTS FROM SLAVE DATAPATH ==============
     //.cfg_reg_wr         (cfg_reg_wr),
-    .enter_xip_mode     (enter_xip_mode),
-    .non_seq_in         (non_seq),
-    .seq_in             (seq),
-    .idle_in            (idle),
-    .busy_in            (busy),
-    .tx_data_valid_in   (tx_data_valid),
-    .enter_indrct_mode_in (enter_indrct_mode),
-    .xip_field_in       (xip_field),
+    .enter_xip_mode         (enter_xip_mode),
+    .non_seq_in             (non_seq),
+    .seq_in                 (seq),
+    .idle_in                (idle),
+    .busy_in                (busy),
+    .tx_data_valid_in       (tx_data_valid),
+    .enter_indrct_mode_in   (enter_indrct_mode),
+    .xip_field_in           (xip_field),
     //============== OUTPUTS TO SLAVE DATAPATH ==============
     //.cfg_reg_wr_en      (cfg_reg_wr_en),
-    .load_h_addr        (load_h_addr),
-    .load_h_burst       (load_h_burst),
-    .wr_rx_reg_out      (wr_rx_reg),
+    .load_h_addr            (load_h_addr),
+    .load_h_burst           (load_h_burst),
+    .wr_rx_reg_out          (wr_rx_reg),
     //============== OUTPUTS TO QSPI CONTROLLER==============
-    .start_new_xip_seq  (start_new_xip_seq),
-    .break_seq_out      (break_seq),
-    .start_indrct_mode_out (start_indrct_mode),
+    .start_new_xip_seq      (start_new_xip_seq),
+    .break_seq_out          (break_seq),
+    .start_indrct_mode_out  (start_indrct_mode),
     //==============INPUTS FROM QSPI CONT ================
-    .qspi_busy_in       (qspi_busy),
+    .qspi_busy_in           (qspi_busy),
     //===============OUTPUTS TO READ FIFO ==================
-    .rst_rd_fifo_out    (rst_rd_fifo),
-    .rd_buffr_rd_en_out (rd_buffr_rd_en),
+    .rst_rd_fifo_out        (rst_rd_fifo),
+    .rd_buffr_rd_en_out     (rd_buffr_rd_en),
     //=============== INPUTS FROM READ FIFO ==================
     .rd_fifo_empty_in       (rd_fifo_empty),
     //=============== OUTPUTS TO WRITE BUFFER ==================
@@ -190,28 +191,29 @@ slave_controller u_slave_controller (
 );
 qspi_datapath u_qspi_datapath (
     //============= INPUTS FROM ToP =================
-    .h_clk          (h_clk),
-    .h_rstn         (h_rstn),
+    .h_clk              (h_clk),
+    .h_rstn             (h_rstn),
     //============== OUTPUTS TO TOP ==================
-    .sclk_out       (sclk),
-    .io0_inout        (io0),
-    .io1_inout        (io1),
-    .io2_inout        (io2),
-    .io3_inout        (io3),
+    .sclk_out           (sclk),
+    .io0_inout          (io0),
+    .io1_inout          (io1),
+    .io2_inout          (io2),
+    .io3_inout          (io3),
+    .oneLINEcorrect     (oneLINEcorrect),
     //=============== INPUTS FROM SLAVE DATAPATH ==============
     .clk_div_in         (clk_div),
-    .flash_addr_len_in (flash_addr_len),
+    .flash_addr_len_in  (flash_addr_len),
     .no_io_lines_use_in (no_io_lines_use),
     .cpol_in            (cpol),
     .haddr_in           (haddr),
-    .hburst_reg_in       (hburst),
+    .hburst_reg_in      (hburst),
     .addr_reg_in        (addr_reg_value),
     .cmd_reg_in         (cmd_reg_value),
     .xip_field_in       (xip_field),
     .indrct_bytes_num_in (indrct_bytes_num),
     //=============INPUTS FROM QSPI CONT ===============
-    .load_cmd_in       (load_cmd),
-    .load_addr_in      (load_addr),
+    .load_cmd_in        (load_cmd),
+    .load_addr_in       (load_addr),
     .load_cfg_addr_shift_reg_in (load_cfg_addr_shift_reg),
     .cmd_sel_in        (cmd_sel),
     .gen_sclk_in       (gen_sclk),
@@ -226,21 +228,21 @@ qspi_datapath u_qspi_datapath (
     .addr_shift_reg_en_in (addr_shift_reg_en),
     
     .data_sample_reg_en_in (data_sample_reg_en),
-    .burst_count_en_in (burst_count_en),
+    .burst_count_en_in     (burst_count_en),
     .sel_shift_addr_reg_in (sel_shift_addr_reg),
-    .sel_sample_1_line_in (sel_sample_1_line),
-    .set_setup_flag_in (set_setup_flag),
+    .sel_sample_1_line_in  (sel_sample_1_line),
+    .set_setup_flag_in     (set_setup_flag),
     .load_shift_data_en_in (load_shift_data_en),
-    .data_shift_reg_en_in (data_shift_reg_en),
+    .data_shift_reg_en_in  (data_shift_reg_en),
     //============= OUTPUTS TO QSPI CONT==================
     .sclk_out_cont       (sclk_cont),
-    .addr_of_4B_out (addr_of_4B),
-    .use_1_io_lines_out (use_1_io_lines),
-    .use_2_io_lines_out (use_2_io_lines),
-    .use_4_io_lines_out (use_4_io_lines),
-    .burst_comp_out    (burst_comp),
-    .count_done_out    (count_done),
-    .setup_cmd_sent_out (sent_setup_cmd),
+    .addr_of_4B_out      (addr_of_4B),
+    .use_1_io_lines_out  (use_1_io_lines),
+    .use_2_io_lines_out  (use_2_io_lines),
+    .use_4_io_lines_out  (use_4_io_lines),
+    .burst_comp_out      (burst_comp),
+    .count_done_out      (count_done),
+    .setup_cmd_sent_out  (sent_setup_cmd),
     //============== OUTPUTS TO READ BUFFER =======================
     .data_sample_reg_out (data_sample_reg),
     //===================== INPUTS FROM WRITE BUFFER ===============
@@ -250,9 +252,9 @@ qspi_datapath u_qspi_datapath (
 );
 qspi_cont u_qspi_cont (
     //============= INPUTS FROM TOP =================
-    .h_rstn                 (h_rstn),
+    .h_rstn                  (h_rstn),
     //============= OUTPUTS TO TOP =================
-    .cs_n_out                 (cs_n),
+    .cs_n_out                (cs_n),
     .send_data_out           (send_data),
     .startSAMPLING_o         (startSAMPLING),
      //=============INPUTS FROM AHB SLAVE CONT===================
@@ -275,9 +277,9 @@ qspi_cont u_qspi_cont (
     .use_1_io_lines_in       (use_1_io_lines),
     .use_2_io_lines_in       (use_2_io_lines),
     .use_4_io_lines_in       (use_4_io_lines),
-    .count_done_in          (count_done),
-    .burst_comp_in          (burst_comp),
-    .sent_setup_cmd_in      (sent_setup_cmd),
+    .count_done_in           (count_done),
+    .burst_comp_in           (burst_comp),
+    .sent_setup_cmd_in       (sent_setup_cmd),
     //============= OUTPUTS TO QSPI DATAPATH =============
     .load_cmd_out             (load_cmd),
     .load_addr_out            (load_addr),
@@ -286,28 +288,28 @@ qspi_cont u_qspi_cont (
     .gen_sclk_out             (gen_sclk),
     .cfg_addr_shift_reg_en_out (cfg_addr_shift_reg_en),
     .cmd_shift_reg_en_out     (cmd_shift_reg_en),
-    .io0_sel_out               (io0_sel),
-    .io1_sel_out                (io1_sel),
-    .io2_sel_out               (io2_sel),
-    .io3_sel_out                (io3_sel),
-    .start_count_out           (start_count),
-    .set_count_lim_out         (set_count_lim),
-    .addr_shift_reg_en_out     (addr_shift_reg_en),
-    .data_sample_reg_en_out    (data_sample_reg_en),
-    .burst_count_en_out        (burst_count_en),
-    .sel_shift_addr_reg_out    (sel_shift_addr_reg),
+    .io0_sel_out              (io0_sel),
+    .io1_sel_out              (io1_sel),
+    .io2_sel_out              (io2_sel),
+    .io3_sel_out              (io3_sel),
+    .start_count_out          (start_count),
+    .set_count_lim_out        (set_count_lim),
+    .addr_shift_reg_en_out    (addr_shift_reg_en),
+    .data_sample_reg_en_out   (data_sample_reg_en),
+    .burst_count_en_out       (burst_count_en),
+    .sel_shift_addr_reg_out   (sel_shift_addr_reg),
     .sel_sample_1_line_out    (sel_sample_1_line),
-    .set_setup_flag_out        (set_setup_flag),
+    .set_setup_flag_out       (set_setup_flag),
     .load_shift_data_en_out   (load_shift_data_en),
-    .data_Shift_reg_en_out   (data_shift_reg_en),
+    .data_Shift_reg_en_out    (data_shift_reg_en),
     //============== OUTPUTS TO READ BUFFER =======================
-    .wr_rd_buffr_en_out        (wr_rd_buffer_en),
+    .wr_rd_buffr_en_out       (wr_rd_buffer_en),
     //===================== INPUT FROM READ BUFFER ========================
-    .rd_buffr_full_in          (rd_buffr_full),
+    .rd_buffr_full_in         (rd_buffr_full),
     //========================INPUTS FROM WRITE BUFFER ========================
-    .wr_buffr_empty_in      (wr_buffr_empty),
+    .wr_buffr_empty_in        (wr_buffr_empty),
     //======================== OUTPUTS TO WRITE BUFFER ==============
-    .wr_buffr_rd_en_out        (wr_buffr_rd_en)
+    .wr_buffr_rd_en_out       (wr_buffr_rd_en)
 
     
     
@@ -321,16 +323,16 @@ rd_sync_fifo #(
     .rd_clk            (h_clk),
     .wr_clk            (sclk_cont),
     // INPUT FROM SLAVE CONTROLLER
-    .rst_n          (rst_rd_fifo),
+    .rst_n             (rst_rd_fifo),
     // Write Side
-    .wr_en       (wr_rd_buffer_en),
-    .wr_data        (data_sample_reg),
+    .wr_en             (wr_rd_buffer_en),
+    .wr_data           (data_sample_reg),
     
-    .full           (rd_buffr_full), 
+    .full              (rd_buffr_full), 
     // Read Side
-    .rd_data       (rd_buffr_data_out),
-    .rd_en        (rd_buffr_rd_en),
-    .empty          (rd_fifo_empty)  
+    .rd_data           (rd_buffr_data_out),
+    .rd_en             (rd_buffr_rd_en),
+    .empty             (rd_fifo_empty)  
 );
 //====================== WRITE BUFFER ==========================
 wr_sync_fifo #(
@@ -342,9 +344,9 @@ wr_sync_fifo #(
     .wr_data        (wr_buffr_wr_data),
     .wr_en          (wr_buffr_wr_en),
     .full           (wr_buffr_full), 
-    .wr_clk            (h_clk),
+    .wr_clk         (h_clk),
     // Read Side
-    .rd_clk           (sclk_cont),
+    .rd_clk         (sclk_cont),
     .rd_data        (wr_buffr_rd_data),
     .rd_en          (wr_buffr_rd_en),
     .empty          (wr_buffr_empty)  

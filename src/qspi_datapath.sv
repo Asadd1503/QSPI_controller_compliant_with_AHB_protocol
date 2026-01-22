@@ -1,57 +1,57 @@
 module qspi_datapath (
     //============= INPUTS FROM TOP =================
-    input logic h_clk,
-    input logic h_rstn,
+    input logic         h_clk,
+    input logic         h_rstn,
     //============== OUTPUTS TO TOP ==================
-    output logic sclk_out,
-    inout logic io0_inout,
-    inout logic io1_inout,
-    inout logic io2_inout,
-    inout logic io3_inout,
-    
+    output logic        sclk_out,
+    inout logic         io0_inout,
+    inout logic         io1_inout,
+    inout logic         io2_inout,
+    inout logic         io3_inout,
+    output logic        oneLINEcorrect,
     //=============== INPUTS FROM SLAVE DATAPATH ==============
-    input logic [7:0] clk_div_in,
-    input logic [1:0] flash_addr_len_in,
-    input logic [1:0] no_io_lines_use_in,
-    input logic cpol_in,
-    input logic [31:0] haddr_in,
-    input logic [2:0] hburst_reg_in,
-    input logic [31:0] addr_reg_in,
-    input logic [7:0] cmd_reg_in,
-    input logic xip_field_in,
-    input logic [7:0] indrct_bytes_num_in,
+    input logic [7:0]   clk_div_in,
+    input logic [1:0]   flash_addr_len_in,
+    input logic [1:0]   no_io_lines_use_in,
+    input logic         cpol_in,
+    input logic [31:0]  haddr_in,
+    input logic [2:0]   hburst_reg_in,
+    input logic [31:0]  addr_reg_in,
+    input logic [7:0]   cmd_reg_in,
+    input logic         xip_field_in,
+    input logic [7:0]   indrct_bytes_num_in,
     //============= OUTPUTS TO QSPI CONT==================
-    output logic sclk_out_cont,  // to TOP
-    output logic addr_of_4B_out,
-    output logic use_1_io_lines_out,
-    output logic use_2_io_lines_out,
-    output logic use_4_io_lines_out,
-    output logic count_done_out,
-    output logic setup_cmd_sent_out,
-    output logic burst_comp_out,
+    output logic        sclk_out_cont,  // to TOP
+    output logic        addr_of_4B_out,
+    output logic        use_1_io_lines_out,
+    output logic        use_2_io_lines_out,
+    output logic        use_4_io_lines_out,
+    output logic        count_done_out,
+    output logic        setup_cmd_sent_out,
+    output logic        burst_comp_out,
     //============= INPUTS FROM QSPI CONT ================
-    input logic load_cmd_in,
-    input logic load_addr_in,
-    input logic load_cfg_addr_shift_reg_in,
-    input logic gen_sclk_in,
-    input logic [2:0] cmd_sel_in,
-    input logic cmd_shift_reg_en_in,
+    input logic         load_cmd_in,
+    input logic         load_addr_in,
+    input logic         load_cfg_addr_shift_reg_in,
+    input logic         gen_sclk_in,
+    input logic [2:0]   cmd_sel_in,
+    input logic         cmd_shift_reg_en_in,
     //input logic load_cfg_addr_shift_reg_in,
-    input logic cfg_addr_shift_reg_en_in,
-    input logic start_count_in,
-    input logic [1:0] set_count_lim_in,
-    input logic [2:0] io0_sel_in,
-    input logic [1:0] io1_sel_in,
-    input logic [1:0] io2_sel_in,
-    input logic [1:0] io3_sel_in,
-    input logic addr_shift_reg_en_in,
-    input logic data_sample_reg_en_in,
-    input logic sel_sample_1_line_in,
-    input logic burst_count_en_in,
-    input logic sel_shift_addr_reg_in,
-    input logic set_setup_flag_in,
-    input logic load_shift_data_en_in,
-    input logic data_shift_reg_en_in,
+    input logic         cfg_addr_shift_reg_en_in,
+    input logic         start_count_in,
+    input logic [1:0]   set_count_lim_in,
+    input logic [2:0]   io0_sel_in,
+    input logic [1:0]   io1_sel_in,
+    input logic [1:0]   io2_sel_in,
+    input logic [1:0]   io3_sel_in,
+    input logic         addr_shift_reg_en_in,
+    input logic         data_sample_reg_en_in,
+    input logic         sel_sample_1_line_in,
+    input logic         burst_count_en_in,
+    input logic         sel_shift_addr_reg_in,
+    input logic         set_setup_flag_in,
+    input logic         load_shift_data_en_in,
+    input logic         data_shift_reg_en_in,
     //================ OUTPUTS TO READ BUFFER =====================
     output logic [31:0] data_sample_reg_out,
     //================ INPUTS FROM WRITE BUFFER ==================
@@ -59,60 +59,54 @@ module qspi_datapath (
 
 );
 
-logic sclk;
-logic cmd_shift_reg_mux_out;
-logic cmd_shift_reg_out;
-logic cfg_addr_shift_reg_out;
-logic use_1_io_lines;
-logic use_2_io_lines;
-logic use_4_io_lines;
-logic [7:0] cmd_shift_reg_data_in;
-logic [4:0] target_value_counter_in;
-logic gen_sclk_mux_in;
-logic addr_shift_reg_out0;
-logic addr_shift_reg_out1;
-logic addr_shift_reg_out2;
-logic addr_shift_reg_out3;
-logic [31:0] data_sample_reg_value;
-logic [4:0] addr_count_value;
-logic [4:0] data_count_value;
-logic use_1_io_lines_sample_reg;
-logic [31:0] shift_addr_reg_in;
-logic data_shift_reg_out0;
-logic data_shift_reg_out1;
-logic data_shift_reg_out2;
-logic data_shift_reg_out3;
+logic           sclk;
+logic           cmd_shift_reg_mux_out;
+logic           cmd_shift_reg_out;
+logic           cfg_addr_shift_reg_out;
+logic           use_1_io_lines;
+logic           use_2_io_lines;
+logic           use_4_io_lines;
+logic [7:0]     cmd_shift_reg_data_in;
+logic [4:0]     target_value_counter_in;
+logic           gen_sclk_mux_in;
+logic           addr_shift_reg_out0;
+logic           addr_shift_reg_out1;
+logic           addr_shift_reg_out2;
+logic           addr_shift_reg_out3;
+logic [31:0]    data_sample_reg_value;
+logic [4:0]     addr_count_value;
+logic [4:0]     data_count_value;
+logic           use_1_io_lines_sample_reg;
+logic [31:0]    shift_addr_reg_in;
+logic           data_shift_reg_out0;
+logic           data_shift_reg_out1;
+logic           data_shift_reg_out2;
+logic           data_shift_reg_out3;
 
-logic data_sample_reg_in0;
-logic data_sample_reg_in1;
-logic data_sample_reg_in2;
-logic data_sample_reg_in3;
-logic [3:0] total_beats;
-logic addr_of_4B;
-
-// Internal signals to control the pin
-logic io0_out_val; // The value we WANT to send out
-logic io0_oe;      // Output Enable (1 = Drive Output, 0 = Input/High-Z)
-
-// --- Internal Signals for IO1 ---
-logic io1_out_val; // Value to drive out
-logic io1_oe;      // Output Enable (1 = Output, 0 = Input)
-
-// --- Internal Signals for IO3 ---
-logic io3_out_val; // Value to drive out
-logic io3_oe;      // Output Enable (1 = Output, 0 = Input)
-
-// --- Internal Signals for IO2 ---
-logic io2_out_val; // Value to drive out
-logic io2_oe;      // Output Enable (1 = Output, 0 = Input)
+logic           data_sample_reg_in0;
+logic           data_sample_reg_in1;
+logic           data_sample_reg_in2;
+logic           data_sample_reg_in3;
+logic [3:0]     total_beats;
+logic           addr_of_4B;
 
 
-assign use_1_io_lines_out = use_1_io_lines;
-assign use_2_io_lines_out = use_2_io_lines;
-assign use_4_io_lines_out = use_4_io_lines;
-assign sclk_out_cont = sclk;                        // SCLK for QSPI CONTROLLER
-assign data_sample_reg_out = data_sample_reg_value; // DATA TO READ BUFFER
-assign addr_of_4B_out = addr_of_4B;                // ADDR OF 4 BYTES FLAG
+logic           io0_out_val; 
+logic           io0_oe;     
+logic           io1_out_val; 
+logic           io1_oe;     
+logic           io3_out_val; 
+logic           io3_oe;      
+logic           io2_out_val;
+logic           io2_oe;      
+
+
+assign use_1_io_lines_out   = use_1_io_lines;
+assign use_2_io_lines_out   = use_2_io_lines;
+assign use_4_io_lines_out   = use_4_io_lines;
+assign sclk_out_cont        = sclk;                        // SCLK for QSPI CONTROLLER
+assign data_sample_reg_out  = data_sample_reg_value; // DATA TO READ BUFFER
+assign addr_of_4B_out       = addr_of_4B;                // ADDR OF 4 BYTES FLAG
 //=============== CLK  GENERATOR INSTANCE ==================
 qspi_clk_gen u_qspi_clk_gen (
     .h_clk      (h_clk),
@@ -161,48 +155,49 @@ qspi_cmd_shift_reg cfg_addr_shift_reg (
 );
 //================ ADDRESS SHIFT REGISTER ==========================
 qspi_addr_shift_reg addr_shift_reg (
-    .clk         (sclk),
-    .rst_n       (h_rstn),
-    .data_in     (shift_addr_reg_in),
-    .load        (load_addr_in),
-    .addrOF4B_in (addr_of_4B),
-    .shift_en    (addr_shift_reg_en_in),
-    .use_1_io_lines_in (use_1_io_lines),
-    .use_2_io_lines_in (use_2_io_lines),
-    .use_4_io_lines_in (use_4_io_lines),
-    .qspi_io0      (addr_shift_reg_out0),
-    .qspi_io1      (addr_shift_reg_out1),
-    .qspi_io2      (addr_shift_reg_out2),
-    .qspi_io3      (addr_shift_reg_out3)
+    .clk                (sclk),
+    .rst_n              (h_rstn),
+    .data_in            (shift_addr_reg_in),
+    .load               (load_addr_in),
+    .addrOF4B_in        (addr_of_4B),
+    .shift_en           (addr_shift_reg_en_in),
+    .use_1_io_lines_in  (use_1_io_lines),
+    .use_2_io_lines_in  (use_2_io_lines),
+    .use_4_io_lines_in  (use_4_io_lines),
+    .qspi_io0           (addr_shift_reg_out0),
+    .qspi_io1           (addr_shift_reg_out1),
+    .qspi_io2           (addr_shift_reg_out2),
+    .qspi_io3           (addr_shift_reg_out3)
 );
 //========================= DATA SAMPLE REG======================
 qspi_data_sample_reg data_sample_reg (
-    .clk         (sclk),
-    .rst_n       (h_rstn),
-    .sample_en   (data_sample_reg_en_in),
-    .qspi_io0    (data_sample_reg_in0), // to be updated for multiple IO lines
-    .qspi_io1    (data_sample_reg_in1),
-    .qspi_io2    (data_sample_reg_in2),
-    .qspi_io3    (data_sample_reg_in3),
-    .use_1_io_lines_in (use_1_io_lines_sample_reg),
-    .use_2_io_lines_in (use_2_io_lines),
-    .use_4_io_lines_in (use_4_io_lines),
-    .data_out    (data_sample_reg_value) 
+    .clk                (sclk),
+    .rst_n              (h_rstn),
+    .sample_en          (data_sample_reg_en_in),
+    .qspi_io0           (data_sample_reg_in0), // to be updated for multiple IO lines
+    .qspi_io1           (data_sample_reg_in1),
+    .qspi_io2           (data_sample_reg_in2),
+    .qspi_io3           (data_sample_reg_in3),
+    .use_1_io_lines_in  (use_1_io_lines_sample_reg),
+    .use_2_io_lines_in  (use_2_io_lines),
+    .use_4_io_lines_in  (use_4_io_lines),
+    .data_out           (data_sample_reg_value),
+    .oneLINEcorrect_o   (oneLINEcorrect) 
 );
 //====================== DATA SHIFT REG ==========================
 qspi_shift_reg data_shift_reg (
-    .clk         (sclk),
-    .rst_n       (h_rstn),
-    .data_in     (wr_buffr_rd_data_in),
-    .load        (load_shift_data_en_in), // Load when sampling starts
-    .shift_en    (data_shift_reg_en_in), // Shift when sampling
-    .use_1_io_lines_in (use_1_io_lines),
-    .use_2_io_lines_in (use_2_io_lines),
-    .use_4_io_lines_in (use_4_io_lines),
-    .qspi_io0      (data_shift_reg_out0),
-    .qspi_io1      (data_shift_reg_out1),
-    .qspi_io2      (data_shift_reg_out2),
-    .qspi_io3      (data_shift_reg_out3)
+    .clk                (sclk),
+    .rst_n              (h_rstn),
+    .data_in            (wr_buffr_rd_data_in),
+    .load               (load_shift_data_en_in), // Load when sampling starts
+    .shift_en           (data_shift_reg_en_in), // Shift when sampling
+    .use_1_io_lines_in  (use_1_io_lines),
+    .use_2_io_lines_in  (use_2_io_lines),
+    .use_4_io_lines_in  (use_4_io_lines),
+    .qspi_io0           (data_shift_reg_out0),
+    .qspi_io1           (data_shift_reg_out1),
+    .qspi_io2           (data_shift_reg_out2),
+    .qspi_io3           (data_shift_reg_out3)
 );
 //================= SAMPLE REG IO1 SELECT LOGIC ====================
 always_comb begin
@@ -256,7 +251,7 @@ end
 assign io0_inout = (io0_oe) ? io0_out_val : 1'bz;
 //============== IO1 SEL MUX ============================
 
-// 1. Control Logic
+
 always_comb begin
     // Defaults to prevent latches
     io1_out_val = 1'b0;
@@ -282,13 +277,13 @@ always_comb begin
         default: io1_oe = 1'b0;
     endcase
 end
-// 2. Physical Tri-state Driver
+
 assign io1_inout = (io1_oe) ? io1_out_val : 1'bz;
 //============== IO2 SEL MUX ============================
 
-// 1. Control Logic
+
 always_comb begin
-    // Defaults to prevent latches
+    
     io2_out_val = 1'b0;
     io2_oe      = 1'b0;
     data_sample_reg_in2 = 1'b0;
@@ -316,7 +311,7 @@ end
 assign io2_inout = (io2_oe) ? io2_out_val : 1'bz;
 //============== IO3 SEL MUX ============================
 
-// 1. Control Logic
+
 always_comb begin
     // Defaults to prevent latches
     io3_out_val = 1'b0;
@@ -342,7 +337,6 @@ always_comb begin
         default: io3_oe = 1'b0;
     endcase
 end
-// 2. Physical Tri-state Driver
 assign io3_inout = (io3_oe) ? io3_out_val : 1'bz;
 //============== FLASH ADDR CAL ===========================
 always_comb begin

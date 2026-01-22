@@ -22,6 +22,7 @@ tri          io3 = 1'bz;
 logic        busy;
 logic        send_data;
 logic        startSAMPLING;
+logic        oneLINEcorrect;
 
 
 logic [3:0] io_out = 4'b0000; 
@@ -31,6 +32,7 @@ logic [31:0] data2WRITEbuffer[0:1] = '{32'hDEAD_BEEF, 32'hCAFE_CAFE};
 logic [31:0] SAMPLEreg [0:1];
 logic status_flag = 1'b0;
 logic one_time_done = 1'b0;
+logic [7:0] STATUSflash2qspi = 8'hff;
 
 assign io0 = tb_io_en ? io_out[0] : 1'bz;
 assign io1 = tb_io_en ? io_out[1] : 1'bz;
@@ -57,7 +59,8 @@ qspi_top uut (
     .io3     (io3),
     .QSPIbusy    (busy),
     .send_data (send_data),
-    .startSAMPLING (startSAMPLING)
+    .startSAMPLING (startSAMPLING),
+    .oneLINEcorrect (oneLINEcorrect)
 );
 
 // Clock: 10 time units period
@@ -168,35 +171,34 @@ endtask
 
 task automatic indirectMODE_readSTATUS();
     $display("TESTING STATUS READ FROM FLASH");
-    wait(busy == 1'b0);
-    wait(h_ready == 1'b1);
-    host_write(32'h0C, 32'h0000_0053); //DUMMY Cmd
-    host_write(32'h00, 32'h8A); // starting indirect mode.
+    $display("writting dummy command  0x53 to cmd reg for reading flash's status");
+    host_write(32'h0C, 32'h53); //DUMMY Cmd
+    $display("Reading cmd reg......");
     host_read(32'h0C, read_data);
     $display("cmd_reg = %0h (expected 0x53)", read_data[7:0]);
+    $display("Reading ctrl reg .....");
     host_read(32'h00, read_data);
-    $display("ctrl_reg = %0h (expected 0x8A)", read_data[7:0]);
+    $display("ctrl_reg = %0h (expected 0x4A)", read_data[7:0]);
+    host_write(32'h00, 32'h8A); // starting indirect mode.
 
     wait (send_data == 1'b1);
-    #3
-    tb_io_en = 1'b1;
+    
     for (int i=0; i<8; i++) begin
-        io_out = 4'b1111;
+        tb_io_en = 1'b1;
+        io_out[0]  = 'bz;
+        io_out[1]  = STATUSflash2qspi[i];
+        io_out[2]  = 'bz;
+        io_out[3]  = 'bz;
         @(posedge sclk);
     end
     #3;
     tb_io_en = 1'b0;
-        
-    while (status_flag == 1'b0) begin
-        @(posedge h_clk);
-        host_read(32'h08, read_data); // STATUS REG ADDR
-        status_flag = read_data[0];
-        $display("STATUS REG READ = %0h", read_data[7:0]);
+    wait(busy == 'b0);
+    wait(h_ready == 'b1);
+    $display("reading rx register.....");
+    host_read(32'h18, read_data);
+    $display("rx_reg = %0h (expected %0h)", read_data[7:0], STATUSflash2qspi);
 
-    end
-    // READING rx reg
-    host_read(32'h18, read_data); // RX REG ADDR
-    $display("rx_reg = %0h (expected 0xFF)", read_data[7:0]);
     
 endtask
 
@@ -233,7 +235,7 @@ task automatic indirectMODE_flashWRITE();
     end
     wait(busy == 1'b0);
     wait(h_ready == 1'b1);
-    $display("--------- Displaying DATA sent and DATA sampled at QSPI outputs ------------")
+    $display("--------- Displaying DATA sent and DATA sampled at QSPI outputs ------------");
     for (int i=0; i<2; i++) begin
         $display("beat %0d = %h Expected ---> %h", i, SAMPLEreg[i], data2WRITEbuffer[i]);
     end
@@ -278,6 +280,9 @@ initial begin
     $display("--------------------------------------------------------");
     $display("Configuration registers Write and Readback Test Complete");
     $display("--------------------------------------------------------");
+    $display("----------------------");
+    $display("STARTING XIP MODE TEST (4 beats burst read from flash)");
+    $display("----------------------");
     //xip_mode_test(32'h20000F00);
     $display("----------------------");
     $display("XIP MODE TEST COMPLETE");
@@ -293,9 +298,16 @@ initial begin
     /******************************
         TESTING write to FLASH
     *******************************/
+    //wait(busy == 1'b0);
+    //wait(h_ready == 1'b1);
+    //indirectMODE_flashWRITE();
+    /*********************************
+        TESTING READ FROM FLASH
+    *********************************/
     wait(busy == 1'b0);
     wait(h_ready == 1'b1);
-    indirectMODE_flashWRITE();
+    indirectMODE_readSTATUS();
+
 
 
     #10 $finish;

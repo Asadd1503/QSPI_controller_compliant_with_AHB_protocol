@@ -15,7 +15,8 @@ module qspi_data_sample_reg (
     input  logic        qspi_io3,
     
     // Output to AHB/FIFO
-    output logic [31:0] data_out
+    output logic [31:0] data_out,
+    output logic oneLINEcorrect_o
 );
 
     logic [31:0] sample_reg;
@@ -23,11 +24,12 @@ module qspi_data_sample_reg (
     // --- Sampling Logic ---
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            sample_reg <= '0;
+            sample_reg <= 'b0;
+            oneLINEcorrect_o <= 'b0;
         end else if (sample_en) begin
             if (use_1_io_lines_in) begin
                 // Single Mode: Standard MISO is usually on IO1
-                
+                oneLINEcorrect_o <= 'b1;
                 sample_reg <= {sample_reg[30:0], qspi_io1}; 
             end else if (use_2_io_lines_in) begin
                 // Dual Mode: Shift in 2 bits

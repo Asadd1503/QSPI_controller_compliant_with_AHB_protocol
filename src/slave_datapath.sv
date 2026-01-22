@@ -14,36 +14,36 @@ module slave_datapath (
     output logic [31:0] h_rdata,
     //============== OUTPUT TO SLAVE CONTROLLER ==============
     //output logic cfg_reg_wr,
-    output logic enter_xip_mode,
-    output logic non_Seq_out,
-    output logic seq_out,
-    output logic idle_out,
-    output logic busy_out,
-    output logic tx_data_valid_out,
-    output logic enter_indrct_mode_out,
+    output logic        enter_xip_mode,
+    output logic        non_Seq_out,
+    output logic        seq_out,
+    output logic        idle_out,
+    output logic        busy_out,
+    output logic        tx_data_valid_out,
+    output logic        enter_indrct_mode_out,
     //============== INPUT FROM SLAVE CONTROLLER ==============
     //input logic cfg_reg_wr_en,
-    input logic load_h_addr,
-    input logic load_h_burst,
-    input logic wr_rx_reg_in,
-    input logic qspi_busy_in,
+    input logic         load_h_addr,
+    input logic         load_h_burst,
+    input logic         wr_rx_reg_in,
+    input logic         qspi_busy_in,
     //============== OUTPUT TO QSPI DATAPATH ==============
-    output logic [7:0] clk_div_out,
-    output logic [1:0] flash_addr_len_out,
-    output logic [1:0] no_io_lines_use_out,
-    output logic cpol_out,
+    output logic [7:0]  clk_div_out,
+    output logic [1:0]  flash_addr_len_out,
+    output logic [1:0]  no_io_lines_use_out,
+    output logic        cpol_out,
     output logic [31:0] haddr_out,
-    output logic [2:0] hburst_reg_out,
+    output logic [2:0]  hburst_reg_out,
     output logic [31:0] addr_reg_out,
-    output logic [7:0] cmd_reg_out,
-    output logic [7:0] indrct_bytes_num_out,
+    output logic [7:0]  cmd_reg_out,
+    output logic [7:0]  indrct_bytes_num_out,
     //============== INPUTS FROM QSPI CONT ================
-    input logic set_done_flag_in,
-    input logic clearINDIRECTbit_i,
+    input logic         set_done_flag_in,
+    input logic         clearINDIRECTbit_i,
     //=============== OUTPUTS TO QSPI CONTROLLER =================
-    output logic cpha_out,
-    output logic indrct_wr_out,
-    output logic xip_field_out,
+    output logic        cpha_out,
+    output logic        indrct_wr_out,
+    output logic        xip_field_out,
     //================ INPUTS FROM READ BUFFER =================
     input logic [31:0] rd_buffr_data_in,
     //=============== OUTUPTS TO WRITE BUFFER ==================
@@ -51,48 +51,48 @@ module slave_datapath (
 
 );
 //=================== CFG REGISTERS ===========================
-logic [31:0] ctrl_reg;      // 0x00
-logic [31:0] clk_div_reg;   // 0x04
-logic [31:0] status_reg;    // 0x08
-logic [31:0] cmd_reg;       // 0x0C
-logic [31:0] addr_reg;      // 0x10
-logic [31:0] tx_data_reg;   // 0x14
-logic [31:0] rx_data_reg;   // 0x18
+logic [31:0]            ctrl_reg;      // 0x00
+logic [31:0]            clk_div_reg;   // 0x04
+logic [31:0]            status_reg;    // 0x08
+logic [31:0]            cmd_reg;       // 0x0C
+logic [31:0]            addr_reg;      // 0x10
+logic [31:0]            tx_data_reg;   // 0x14
+logic [31:0]            rx_data_reg;   // 0x18
 //============================================================
-logic [31:0] addr_in;
-logic [31:0] haddr_dec_out;
-logic       cfg_reg_addr_in_range;
-logic [1:0] flash_addr_len;
-logic       xip_field;
-logic       flash_addr_in_range;
-logic [31:0] h_addr_reg_out;
-logic [2:0] h_burst_reg;
-logic [1:0] no_io_lines_used;
-logic cpol;
-logic cpha;
-logic cfg_reg_wr_en;
-logic cfg_reg_rd_en;
-logic [2:0] hrDATAsel; // 00 - read buffer, 01 - rx_data_reg, 10 - status_reg
-logic clear_status_reg;
+logic [31:0]            addr_in;
+logic [31:0]            haddr_dec_out;
+logic                   cfg_reg_addr_in_range;
+logic [1:0]             flash_addr_len;
+logic                   xip_field;
+logic                   flash_addr_in_range;
+logic [31:0]            h_addr_reg_out;
+logic [2:0]             h_burst_reg;
+logic [1:0]             no_io_lines_used;
+logic                   cpol;
+logic                   cpha;
+logic                   cfg_reg_wr_en;
+logic                   cfg_reg_rd_en;
+logic [2:0]             hrDATAsel; // 00 - read buffer, 01 - rx_data_reg, 10 - status_reg
+logic                   clear_status_reg;
 
-assign cpha = ctrl_reg[0];
-assign cpol = ctrl_reg[1];
-assign no_io_lines_used = ctrl_reg[3:2]; // 00 - 1 line, 01 - 2 lines, 10 - 4
-assign xip_field      = ctrl_reg[6];  // 1 --> XIP MODE ENABLED, 0 --> INDIRECT MODE
-assign flash_addr_len = ctrl_reg[5:4];
-assign addr_in        = h_addr;
-assign clk_div_out = clk_div_reg[7:0];
-assign flash_addr_len_out = flash_addr_len;
-assign no_io_lines_use_out = no_io_lines_used;
-assign cpol_out = cpol;
-assign cpha_out = cpha;
-assign haddr_out = haddr_dec_out;
-assign hburst_reg_out = h_burst_reg;
+assign cpha                 = ctrl_reg[0];
+assign cpol                 = ctrl_reg[1];
+assign no_io_lines_used     = ctrl_reg[3:2]; // 00 - 1 line, 01 - 2 lines, 10 - 4
+assign xip_field            = ctrl_reg[6];  // 1 --> XIP MODE ENABLED, 0 --> INDIRECT MODE
+assign flash_addr_len       = ctrl_reg[5:4];
+assign addr_in              = h_addr;
+assign clk_div_out          = clk_div_reg[7:0];
+assign flash_addr_len_out   = flash_addr_len;
+assign no_io_lines_use_out  = no_io_lines_used;
+assign cpol_out             = cpol;
+assign cpha_out             = cpha;
+assign haddr_out            = haddr_dec_out;
+assign hburst_reg_out       = h_burst_reg;
 assign wr_buffr_wr_data_out = tx_data_reg;
-assign indrct_start = ctrl_reg[7]; // Start bit for indirect transfers
-assign cmd_reg_out = cmd_reg[7:0];
-assign indrct_wr_out = ctrl_reg[16]; // 1 - write, 0 - read
-assign xip_field_out = xip_field;
+assign indrct_start         = ctrl_reg[7]; // Start bit for indirect transfers
+assign cmd_reg_out          = cmd_reg[7:0];
+assign indrct_wr_out        = ctrl_reg[16]; // 1 - write, 0 - read
+assign xip_field_out        = xip_field;
 assign indrct_bytes_num_out = ctrl_reg[15:8]; // Number of bytes to transfer in indirect mode
 //=============================================================
 //=================== INDIRECT MODE LOGIC ==================
@@ -113,7 +113,7 @@ always_comb begin
         cfg_reg_addr_in_range = 1'b0;
     end
     //--------------------------------------------------------------------
-    if (cfg_reg_addr_in_range == 'b1 && h_write == 'b1 && h_sel == 'b1 && h_trans != 2'b00) begin
+    if (cfg_reg_addr_in_range == 'b1 && h_write == 'b1 && h_sel == 'b1 && h_trans != 2'b00 && qspi_busy_in == 'b0) begin
         cfg_reg_wr_en = 'b1;
     end else begin
         cfg_reg_wr_en = 'b0;
@@ -267,8 +267,8 @@ always_comb begin
     clear_status_reg = 'b0;
     case (hrDATAsel)
         3'b000: h_rdata = rd_buffr_data_in;
-        3'b001: h_rdata = rx_data_reg;
-        3'b010: begin
+        3'b010: h_rdata = rx_data_reg;
+        3'b001: begin
             h_rdata = status_reg;
             clear_status_reg = 'b1;
         end

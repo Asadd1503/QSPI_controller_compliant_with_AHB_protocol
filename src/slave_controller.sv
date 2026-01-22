@@ -146,45 +146,45 @@ always_comb begin
 end
 //============ OUTPUT LOGIC ====================
 always_comb begin
-    h_ready          = 'b0; 
+    h_ready                     = 'b0; 
     //cfg_reg_wr_en    = 'b0;
-    load_h_addr       = 'b0;
-    load_h_burst      = 'b0;
-    start_new_xip_seq = 'b0;
-    rst_rd_fifo_out   = 'b0;
-    rd_buffr_rd_en_out = 'b0;
-    break_seq_out       = 'b0;
-    wr_buffer_wr_en_out = 'b0;
-    start_indrct_mode_out = 'b0;
-    wr_rx_reg_out       = 'b0;
+    load_h_addr                 = 'b0;
+    load_h_burst                = 'b0;
+    start_new_xip_seq           = 'b0;
+    rst_rd_fifo_out             = 'b0;
+    rd_buffr_rd_en_out          = 'b0;
+    break_seq_out               = 'b0;
+    wr_buffer_wr_en_out         = 'b0;
+    start_indrct_mode_out       = 'b0;
+    wr_rx_reg_out               = 'b0;
     case (c_state)
         IDLE: begin
-            h_ready = 'b1;
+            h_ready             = 'b1;
         end
         LOAD: begin
-            load_h_addr  =      'b1;
-            load_h_burst =      'b1;
-            start_new_xip_seq = 'b1;
-            rst_rd_fifo_out   = 'b1;
+            load_h_addr         = 'b1;
+            load_h_burst        = 'b1;
+            start_new_xip_seq   = 'b1;
+            rst_rd_fifo_out     = 'b1;
         end
         READ_DATA: begin
-            rd_buffr_rd_en_out = 'b1;
+            rd_buffr_rd_en_out  = 'b1;
         end
         BREAK_SEQ: begin
-            break_seq_out = 'b1;
+            break_seq_out       = 'b1;
         end
         TRANSFER_DATA: begin
             wr_buffer_wr_en_out = 'b1;
         end
         INDIRECT_MODE: begin
             start_indrct_mode_out = 'b1;
-            rst_rd_fifo_out = 'b1;
+            rst_rd_fifo_out       = 'b1;
         end
         READ_RD_BUFFER: begin
-            rd_buffr_rd_en_out = 'b1;
+            rd_buffr_rd_en_out    = 'b1;
         end
         WRITE_RX_REG: begin
-            wr_rx_reg_out = 'b1;
+            wr_rx_reg_out         = 'b1;
         end
     endcase
 end
